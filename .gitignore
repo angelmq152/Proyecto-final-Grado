@@ -1,0 +1,26 @@
+# Python / uv
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+.coverage
+htmlcov/
+
+# Word / Office locks y backups
+~$*
+*.docx.bak
+
+# Secretos (nunca commitear)
+.env
+.env.*
+!.env.example
+
+# Estado local de herramientas IA
+.claude/
+.codex/
+codex/
+.agents/

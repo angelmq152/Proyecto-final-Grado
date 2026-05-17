@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: leia-agent
+  namespace: saasphere-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: leia-role
+rules:
+  - apiGroups: ["", "apps", "networking.k8s.io"]
+    resources: ["namespaces", "deployments", "services", "ingresses", "pods", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: leia-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: leia-role
+subjects:
+  - kind: ServiceAccount
+    name: leia-agent
+    namespace: saasphere-system

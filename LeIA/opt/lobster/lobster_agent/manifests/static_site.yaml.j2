@@ -1,0 +1,114 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ name }}
+  labels:
+    saasphere.io/tenant: "true"
+    saasphere.io/tier: "{{ tier }}"
+    saasphere.io/type: "static_site"
+    saasphere.io/owner: "{{ owner | default('admin', true) }}"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ name }}-html
+  namespace: {{ name }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: {{ limits.storage }}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ name }}-quota
+  namespace: {{ name }}
+spec:
+  hard:
+    requests.cpu: "{{ limits.cpu_request }}"
+    limits.cpu: "{{ limits.cpu_limit }}"
+    requests.memory: "{{ limits.memory_request }}"
+    limits.memory: "{{ limits.memory_limit }}"
+    persistentvolumeclaims: "1"
+    requests.storage: "{{ limits.storage }}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ name }}
+  namespace: {{ name }}
+spec:
+  replicas: {{ limits.replicas }}
+  selector:
+    matchLabels:
+      app: {{ name }}
+  template:
+    metadata:
+      labels:
+        app: {{ name }}
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "{{ limits.cpu_request }}"
+              memory: "{{ limits.memory_request }}"
+            limits:
+              cpu: "{{ limits.cpu_limit }}"
+              memory: "{{ limits.memory_limit }}"
+          volumeMounts:
+            - name: html
+              mountPath: /usr/share/nginx/html
+      volumes:
+        - name: html
+          persistentVolumeClaim:
+            claimName: {{ name }}-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ name }}
+  namespace: {{ name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ name }}
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ name }}
+  namespace: {{ name }}
+  annotations:
+{% if not hostname.endswith('.saasphere.local') %}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+{% else %}
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+{% endif %}
+spec:
+{% if not hostname.endswith('.saasphere.local') %}
+  tls:
+    - hosts:
+        - {{ hostname }}
+      secretName: {{ name }}-tls
+{% endif %}
+  rules:
+    - host: {{ hostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ name }}
+                port:
+                  number: 80

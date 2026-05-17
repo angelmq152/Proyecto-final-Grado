@@ -1,0 +1,86 @@
+groups:
+  - name: lobster
+    interval: 60s
+    rules:
+
+      # Lobster lleva más de 15 min sin que ningún job actualice el timestamp
+      - alert: LobsterSinActividad
+        expr: |
+          (time() - max(lobster_last_cycle_timestamp)) > 900
+        for: 2m
+        labels:
+          severity: critical
+          team: ops
+        annotations:
+          summary: "Lobster sin actividad durante {{ $value | humanizeDuration }}"
+          description: >
+            El campo lobster_last_cycle_timestamp no se ha actualizado en más de 15 minutos.
+            Puede indicar que el proceso está caído, pausado o bloqueado en una llamada LLM.
+          runbook: "Revisar `systemctl status lobster` en LeIA y los logs en Grafana/Loki."
+
+      # Tasa de errores inesperados alta (excluyendo warnings de reconexión)
+      - alert: LobsterTasaErroresAlta
+        expr: |
+          sum(rate(lobster_errors_total{severity="error"}[5m])) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Tasa de errores de Lobster elevada ({{ $value | humanize }} err/s)"
+          description: >
+            lobster_errors_total{severity="error"} supera 0.05 errores/segundo
+            durante más de 3 minutos. Revisar qué componente falla.
+          runbook: "Filtrar en Loki: `{service=\"lobster\"} |= \"exception\"`"
+
+      # El agente LLM tarda demasiado (p95 > 5 min para qwen3:8b)
+      - alert: LobsterLatenciaLLMAlta
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(lobster_llm_latency_seconds_bucket{model=~"qwen3:8b"}[10m])) by (le, model)
+          ) > 300
+        for: 5m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Latencia p95 del LLM ({{ $labels.model }}) supera 5 minutos"
+          description: >
+            El percentil 95 de lobster_llm_latency_seconds para {{ $labels.model }}
+            lleva más de 5 minutos superando los 300 segundos. El modelo puede estar
+            saturado o Ollama bajo presión de recursos.
+          runbook: "Revisar carga GPU/CPU en LeIA: `nvidia-smi` y `htop`."
+
+      # Ratio de decisiones fallidas alto
+      - alert: LobsterDecisionesFallidas
+        expr: |
+          sum(rate(lobster_decisions_total{outcome="failed"}[10m]))
+          /
+          sum(rate(lobster_decisions_total[10m]))
+          > 0.30
+        for: 5m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Más del 30 % de decisiones de Lobster están fallando"
+          description: >
+            La ratio de outcome=failed sobre el total de decisiones supera el 30 %
+            durante los últimos 10 minutos. El agente puede estar recibiendo prompts
+            malformados o el LLM está devolviendo respuestas inválidas.
+          runbook: "Revisar tabla decisions en SQLite: `lobster decisions list --limit 20`"
+
+      # El proceso ha estado caído y ha vuelto (uptime reiniciado)
+      - alert: LobsterRestart
+        expr: |
+          lobster_uptime_seconds < 120
+        for: 0m
+        labels:
+          severity: info
+          team: ops
+        annotations:
+          summary: "Lobster se ha reiniciado (uptime {{ $value | humanizeDuration }})"
+          description: >
+            lobster_uptime_seconds es menor de 2 minutos, lo que indica un reinicio
+            reciente del proceso.
+          runbook: "Normal si fue reinicio manual. Si fue inesperado, revisar journald."

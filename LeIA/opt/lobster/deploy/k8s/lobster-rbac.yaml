@@ -1,0 +1,63 @@
+# Lobster read-only access to the K3s cluster.
+# This ServiceAccount is read-only, has no mutation verbs, and has no generic
+# Secrets read access. If TLS Secret reads are needed in the future for
+# list_tls_secrets, add explicit namespaced RoleBindings and never grant global
+# ClusterRole access to secrets.
+# - ServiceAccount: lobster-reader (namespace saasphere-system)
+# - No mutation verbs. No generic Secrets read access.
+# - If TLS Secret reads are needed, add namespaced RoleBindings explicitly.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lobster-reader
+  namespace: saasphere-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: lobster-reader
+rules:
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "services", "endpoints", "nodes", "namespaces", "events", "configmaps", "persistentvolumeclaims", "persistentvolumes", "resourcequotas", "limitranges"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "networkpolicies"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["traefik.io", "traefik.containo.us"]
+    resources: ["ingressroutes", "middlewares", "tlsoptions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["helm.cattle.io"]
+    resources: ["helmcharts", "helmchartconfigs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: lobster-reader
+subjects:
+  - kind: ServiceAccount
+    name: lobster-reader
+    namespace: saasphere-system
+roleRef:
+  kind: ClusterRole
+  name: lobster-reader
+  apiGroup: rbac.authorization.k8s.io
+---
+# Long-lived token for the ServiceAccount (K8s 1.24+ requires explicit Secret).
+apiVersion: v1
+kind: Secret
+metadata:
+  name: lobster-reader-token
+  namespace: saasphere-system
+  annotations:
+    kubernetes.io/service-account.name: lobster-reader
+type: kubernetes.io/service-account-token

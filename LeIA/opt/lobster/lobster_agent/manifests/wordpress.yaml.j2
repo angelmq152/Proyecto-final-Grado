@@ -1,0 +1,206 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ name }}
+  labels:
+    saasphere.io/tenant: "true"
+    saasphere.io/tier: "{{ tier }}"
+    saasphere.io/type: "wordpress"
+    saasphere.io/owner: "{{ owner | default('admin', true) }}"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ name }}-db
+  namespace: {{ name }}
+type: Opaque
+stringData:
+  password: "{{ db_password }}"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ name }}-wordpress
+  namespace: {{ name }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: {{ limits.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ name }}-mariadb
+  namespace: {{ name }}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: {{ limits.storage }}
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ name }}-quota
+  namespace: {{ name }}
+spec:
+  hard:
+    requests.cpu: "{{ quota_limits.cpu_request }}"
+    limits.cpu: "{{ quota_limits.cpu_limit }}"
+    requests.memory: "{{ quota_limits.memory_request }}"
+    limits.memory: "{{ quota_limits.memory_limit }}"
+    persistentvolumeclaims: "2"
+    requests.storage: "{{ quota_limits.storage }}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: {{ name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+        - name: mariadb
+          image: mariadb:10.11
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ name }}-db
+                  key: password
+            - name: MYSQL_DATABASE
+              value: wordpress
+            - name: MYSQL_USER
+              value: wordpress
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ name }}-db
+                  key: password
+          resources:
+            requests:
+              cpu: "{{ limits.cpu_request }}"
+              memory: "{{ limits.memory_request }}"
+            limits:
+              cpu: "{{ limits.cpu_limit }}"
+              memory: "{{ limits.memory_limit }}"
+          volumeMounts:
+            - name: db
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: db
+          persistentVolumeClaim:
+            claimName: {{ name }}-mariadb
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  namespace: {{ name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: mariadb
+  ports:
+    - port: 3306
+      targetPort: 3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: {{ name }}
+spec:
+  replicas: {{ limits.replicas }}
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+        - name: wordpress
+          image: wordpress:latest
+          env:
+            - name: WORDPRESS_DB_HOST
+              value: mariadb
+            - name: WORDPRESS_DB_USER
+              value: wordpress
+            - name: WORDPRESS_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ name }}-db
+                  key: password
+            - name: WORDPRESS_DB_NAME
+              value: wordpress
+          resources:
+            requests:
+              cpu: "{{ limits.cpu_request }}"
+              memory: "{{ limits.memory_request }}"
+            limits:
+              cpu: "{{ limits.cpu_limit }}"
+              memory: "{{ limits.memory_limit }}"
+          volumeMounts:
+            - name: wp-content
+              mountPath: /var/www/html/wp-content
+      volumes:
+        - name: wp-content
+          persistentVolumeClaim:
+            claimName: {{ name }}-wordpress
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: {{ name }}
+spec:
+  type: ClusterIP
+  selector:
+    app: wordpress
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ name }}
+  namespace: {{ name }}
+  annotations:
+{% if not hostname.endswith('.saasphere.local') %}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+{% else %}
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+{% endif %}
+spec:
+{% if not hostname.endswith('.saasphere.local') %}
+  tls:
+    - hosts:
+        - {{ hostname }}
+      secretName: {{ name }}-tls
+{% endif %}
+  rules:
+    - host: {{ hostname }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wordpress
+                port:
+                  number: 80

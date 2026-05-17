@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Revisión del TFG — AngelMartinQuero.pdf</title>
+<style>
+  :root {
+    --rojo: #b00020;
+    --naranja: #c95a00;
+    --amarillo: #b78400;
+    --verde: #1a7f37;
+    --gris: #555;
+    --gris-claro: #f4f4f4;
+    --borde: #ddd;
+  }
+  html { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 11pt; color: #1a1a1a; }
+  body { max-width: 900px; margin: 2em auto; padding: 0 1.5em; line-height: 1.45; }
+  h1 { font-size: 22pt; border-bottom: 3px solid #1a1a1a; padding-bottom: .3em; margin-bottom: .2em; }
+  h2 { font-size: 16pt; border-bottom: 1px solid var(--borde); padding-top: .8em; margin-top: 1.5em; padding-bottom: .15em; }
+  h3 { font-size: 13pt; color: #222; margin-top: 1.4em; margin-bottom: .3em; }
+  h4 { font-size: 11.5pt; margin-top: 1em; margin-bottom: .2em; }
+  p, li { font-size: 11pt; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin-bottom: .25em; }
+  code { background: var(--gris-claro); padding: .05em .35em; border-radius: 3px; font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  blockquote { border-left: 4px solid var(--gris); margin: .8em 0; padding: .4em .9em; background: var(--gris-claro); font-style: italic; color: #333; }
+  table { border-collapse: collapse; width: 100%; margin: .8em 0; font-size: 10.5pt; }
+  th, td { border: 1px solid var(--borde); padding: .5em .7em; text-align: left; vertical-align: top; }
+  th { background: #eee; }
+  .crit { color: var(--rojo); font-weight: bold; }
+  .alto { color: var(--naranja); font-weight: bold; }
+  .med  { color: var(--amarillo); font-weight: bold; }
+  .baj  { color: var(--verde); font-weight: bold; }
+  .badge {
+    display: inline-block; padding: .1em .55em; border-radius: 3px;
+    font-size: 9.5pt; font-weight: bold; color: #fff; margin-right: .4em;
+    vertical-align: middle;
+  }
+  .b-crit { background: var(--rojo); }
+  .b-alto { background: var(--naranja); }
+  .b-med  { background: var(--amarillo); }
+  .b-baj  { background: var(--verde); }
+  .resumen { background: #fff8e1; border: 1px solid #e0c060; padding: .9em 1.2em; border-radius: 6px; margin-bottom: 1.5em; }
+  .caja { border: 1px solid var(--borde); padding: .7em 1em; margin: .6em 0; border-radius: 4px; background: #fafafa; }
+  .ok { color: var(--verde); }
+  .nok { color: var(--rojo); }
+  hr { border: none; border-top: 1px solid var(--borde); margin: 2em 0; }
+  .pie { font-size: 9pt; color: var(--gris); text-align: center; margin-top: 3em; }
+  .meta { color: var(--gris); font-size: 10pt; }
+  .cita { background: #fff3f3; border-left: 4px solid var(--rojo); padding: .5em .8em; margin: .5em 0; font-style: italic; }
+  .leyenda span { margin-right: 1.2em; }
+  details.fix {
+    margin-top: .6em;
+    border: 1px solid #c5d8ee;
+    border-radius: 4px;
+    background: #f0f6fc;
+    padding: .2em .55em;
+  }
+  details.fix > summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #0b5394;
+    padding: .25em 0;
+    list-style: none;
+    font-size: 10pt;
+  }
+  details.fix > summary::-webkit-details-marker { display: none; }
+  details.fix > summary::before {
+    content: "▸ ";
+    display: inline-block;
+    transition: transform .15s ease;
+  }
+  details.fix[open] > summary::before {
+    content: "▾ ";
+  }
+  details.fix > summary:hover { color: #073763; }
+  details.fix .contenido {
+    padding: .35em .2em .5em .2em;
+    border-top: 1px dashed #c5d8ee;
+    margin-top: .25em;
+    font-size: 10pt;
+    line-height: 1.4;
+  }
+  details.fix .contenido p { margin: .35em 0; font-size: 10pt; }
+  details.fix .contenido ul, details.fix .contenido ol { margin: .3em 0 .3em 0; padding-left: 1.4em; }
+  details.fix .contenido li { font-size: 10pt; margin-bottom: .15em; }
+  details.fix .contenido code { font-size: 9.5pt; }
+  details.fix.ok { background: #eefbef; border-color: #b6e0bc; }
+  details.fix.ok > summary { color: #1a7f37; }
+  .resuelto {
+    display: inline-block;
+    background: #1a7f37;
+    color: #fff;
+    font-size: 9pt;
+    font-weight: bold;
+    padding: .1em .55em;
+    border-radius: 3px;
+    margin-left: .3em;
+  }
+  .arquitectura-box {
+    background: #fff6f6;
+    border-left: 4px solid var(--rojo);
+    padding: .7em 1em;
+    margin: .8em 0;
+    border-radius: 4px;
+  }
+  .arquitectura-box.fix-box {
+    background: #f0f7ff;
+    border-left-color: #0b5394;
+  }
+</style>
+</head>
+<body>
+
+<h1>Revisión del TFG — <em>AngelMartinQuero.pdf</em></h1>
+<p class="meta">
+  Documento revisado: <strong>AngelMartinQuero.pdf</strong> · 74 páginas · Curso 2025/26<br>
+  Plantilla de referencia: <strong>PlantillaProyecto--2025-26.pdf</strong><br>
+  Fecha de revisión: 17/05/2026
+</p>
+
+<div class="resumen">
+  <strong>Valoración global:</strong> el proyecto técnico es muy ambicioso y los hechos del trabajo son sólidos, pero el documento <strong>no transmite lo que has hecho</strong>. El mayor problema no es la falta de información: es que la información que hay está mal estructurada, escrita en primera persona contra la guía de estilo, asume conocimiento previo del lector (nadie entiende qué es un <em>tenant</em>, qué es <em>OpenClaw</em> ni qué hace exactamente <em>LeIA</em>), y arrastra fallos estructurales graves (entradas de índice rotas, fases que faltan, secciones obligatorias ausentes). Un tribunal que no haya hablado contigo no podrá juzgar el alcance real de tu trabajo.
+  <br><br>
+  <strong>Diagnóstico en una frase:</strong> el TFG está escrito como si fuera una bitácora personal, no como una memoria técnica.
+</div>
+
+<p class="leyenda">
+  <strong>Leyenda de severidad:</strong>
+  <span class="badge b-crit">CRÍTICO</span> bloquea la entrega/comprensión
+  <span class="badge b-alto">ALTO</span> hay que arreglarlo sí o sí
+  <span class="badge b-med">MEDIO</span> mejora la nota
+  <span class="badge b-baj">BAJO</span> pulido final
+</p>
+
+<hr>
+
+<h2>1. Cumplimiento de la plantilla obligatoria</h2>
+
+<p>La plantilla establece, en el anexo <em>«Guía de estilo»</em>, un conjunto de reglas <strong>de obligado cumplimiento</strong>. Tipografía y márgenes coinciden con la plantilla (Calibri 11 pt en el cuerpo, Arial en cabeceras y pies). El problema está en la <strong>guía de estilo de redacción</strong> y en las <strong>secciones obligatorias del esquema</strong>.</p>
+
+<h3>1.1. Reglas de la plantilla y si las cumples</h3>
+
+<table>
+  <thead>
+    <tr><th>Regla obligatoria de la plantilla</th><th>Estado</th><th>Comentario</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tipografía Calibri 11 pt cuerpo / Arial cabecera y pie</td>
+      <td class="ok">CUMPLE</td>
+      <td>Comprobado por análisis de fuentes embebidas.</td>
+    </tr>
+    <tr>
+      <td>Cabecera <em>nombre del proyecto</em> + pie <em>I.E.S. «Venancio Blanco» SALAMANCA · Curso 2025/26 · página X de Y</em></td>
+      <td class="ok">CUMPLE</td>
+      <td>Aunque hay un pequeño defecto: en algunas páginas el pie aparece pegado a la palabra <em>página</em> («<code>Curso: 2025/26página 5 de 74</code>») por falta de espacio o tabulación.</td>
+    </tr>
+    <tr>
+      <td>Toda figura/tabla debe llevar título a pie</td>
+      <td class="nok">NO CUMPLE</td>
+      <td>El TFG solo tiene <strong>1 figura con título</strong> («Ilustración 1 – SaaSphere»). Hay decenas de capturas de pantalla sin pie, y tablas sin numerar. Tu propio Índice de figuras lista <strong>solo una</strong>.</td>
+    </tr>
+    <tr>
+      <td>Índice de contenidos + Índice de figuras</td>
+      <td class="nok">NO CUMPLE</td>
+      <td>El índice de contenidos contiene entradas rotas («¡Error! Marcador no definido.») y entradas vacías. El índice de figuras tiene solo 1 entrada cuando hay decenas de capturas y tablas.</td>
+    </tr>
+    <tr>
+      <td>Redacción: <strong>no usar formas personales</strong> (instalamos → se instala)</td>
+      <td class="nok">NO CUMPLE</td>
+      <td>El documento usa primera persona constantemente: <em>«voy a crear»</em>, <em>«muevo los archivos»</em>, <em>«intento averiguar»</em>, <em>«me ha dado»</em>, <em>«he pensado»</em>, <em>«considero»</em>, <em>«ahora voy a»</em>, <em>«probamos»</em>, <em>«nos lo impide»</em>, <em>«le insisto»</em>. Es <strong>la regla que más incumples y la que más afea</strong> el documento.</td>
+    </tr>
+    <tr>
+      <td>Redacción: evitar voz pasiva traducida del inglés</td>
+      <td class="nok">PARCIAL</td>
+      <td>Hay frases tipo <em>«es desarrollado para»</em> que se podrían reformular como <em>«se desarrolla para»</em>. No es masivo, pero se nota.</td>
+    </tr>
+    <tr>
+      <td>Redacción: evitar mayúsculas salvo títulos</td>
+      <td class="nok">NO CUMPLE</td>
+      <td>Cabeceras de tablas en MAYÚSCULAS completas (p. ej. <em>«ANALIZAR MÉTRICAS E INFRAESTRUCTURA MEDIANTE INTELIGENCIA ARTIFICIAL»</em>). Eso no es un título, es contenido de tabla.</td>
+    </tr>
+    <tr>
+      <td>Evitar párrafos largos · usar viñetas</td>
+      <td class="ok">CUMPLE en general</td>
+      <td>Bien usado.</td>
+    </tr>
+    <tr>
+      <td>Formato PDF final</td>
+      <td class="ok">CUMPLE</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td>Nombre de la carpeta de entrega <code>CICLO-CURSO-TITULO</code></td>
+      <td>—</td>
+      <td>No comprobable desde el PDF.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>1.2. Secciones del esquema de la plantilla y si están</h3>
+
+<p>La plantilla no obliga a seguir el índice al pie de la letra, pero sí marca un esquema de fases (<em>Análisis · Diseño · Implementación · Pruebas</em>) y bloques específicos. Esto es lo que falta o está incompleto:</p>
+
+<table>
+  <thead>
+    <tr><th>Bloque de la plantilla</th><th>Tu TFG · Cómo solucionarlo</th><th>Severidad</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Resumen ejecutivo <span class="resuelto">REESCRITO</span></td>
+      <td>
+        <strong>Reescrito en la versión actual del Word</strong>: ya está estructurado en bloques (¿Qué es? · ¿Qué problema resuelve? · Arquitectura · Funcionamiento · Resultado) y eliminadas las metáforas del «tonto y el listo». <strong>Sigue habiendo un problema</strong>: el bloque «Arquitectura» dice <em>«5 nodos, 3 virtuales y 3 físicos»</em>, lo cual es matemáticamente incorrecto (3 + 3 = 6). Hay que decidir si son 5 o 6 nodos y mantener el mismo recuento en toda la sección de arquitectura.
+        <details class="fix">
+          <summary>Cómo solucionarlo (enfoque práctico recomendado por el tutor)</summary>
+          <div class="contenido">
+            <p><strong>Recomendación del tutor</strong>: hacer un resumen <em>práctico</em> que englobe <strong>todo el proyecto</strong> (técnico + empresa + operación), no solo la parte empresarial de la plantilla. La plantilla marca cuatro bullets como guía, pero pueden enriquecerse para reflejar también <em>qué se ha construido</em> y <em>cómo funciona</em>.</p>
+            <p>Estructura sugerida en una sola página, estilo impersonal, sin metáforas:</p>
+            <ol>
+              <li><strong>Qué es el proyecto (1–2 frases)</strong>: «Este proyecto desarrolla SaaSphere, una plataforma de hosting gestionado multitenant sobre infraestructura propia, operada con asistencia de un agente de inteligencia artificial local llamado OpenClaw.»</li>
+              <li><strong>Qué problema resuelve</strong>: pymes y autónomos de Salamanca y alfoz necesitan presencia digital sin asumir el coste de servicios cloud comerciales ni mantener personal técnico interno. Apoyarlo con un dato concreto del INE o del Ministerio de Industria.</li>
+              <li><strong>Qué se ha construido (la parte técnica que faltaba)</strong>: enumerar de forma concisa los componentes que conforman el sistema, para que el lector entienda el alcance real desde la primera página:
+                <ul>
+                  <li>Clúster <strong>K3s</strong> distribuido sobre tres nodos físicos (LeIA, ESXi-host, Fallback) y tres VMs lógicas (Matrix, Sauron, Heimdall).</li>
+                  <li>Agente <strong>OpenClaw</strong> sobre <strong>Qwen3</strong> servido por <strong>Ollama</strong>, con routing por tipo de tarea (8b para lectura, 32b para análisis profundo).</li>
+                  <li>Sistema de <strong>políticas y aprobaciones por severidad</strong> (AUTONOMOUS / NORMAL / CRITICAL) con confirmación humana vía <strong>Telegram</strong>.</li>
+                  <li>Plantillas <strong>Jinja2</strong> para tres tipos de tenant (<code>web_app</code>, <code>wordpress</code>, <code>static_site</code>) con aislamiento por <em>namespace</em>.</li>
+                  <li>Observabilidad completa con <strong>Prometheus + Grafana + Loki + Alertmanager</strong> y webhook hacia el agente.</li>
+                  <li>Acceso administrativo remoto cifrado con <strong>WireGuard</strong>; exposición HTTPS automatizada con <strong>Traefik</strong> y <strong>Let's Encrypt</strong>.</li>
+                  <li>Persistencia y trazabilidad en <strong>SQLite</strong> (9 tablas).</li>
+                </ul>
+              </li>
+              <li><strong>Cómo funciona en la práctica (2–3 frases)</strong>: el operador conversa con el agente por Telegram para dar de alta o baja clientes; el agente vigila la infraestructura de forma autónoma, ejecuta acciones de bajo riesgo sin intervención y solicita aprobación humana para las críticas; cada decisión queda registrada con su trazabilidad.</li>
+              <li><strong>Resultado y demanda potencial</strong>: el sistema queda operativo y permite alojar webs y aplicaciones de clientes pyme/autónomo de la zona, con un coste por cliente claramente inferior al de las alternativas cloud comerciales gracias a la inferencia local y al hardware propio.</li>
+            </ol>
+            <p><strong>Reglas de estilo</strong>:</p>
+            <ul>
+              <li>Quitar la metáfora del «tonto y el listo» y cualquier expresión coloquial.</li>
+              <li>Estilo <strong>impersonal</strong> (<em>«se desarrolla»</em>, <em>«se construye»</em>), nunca primera persona.</li>
+              <li>Cabe en <strong>una sola página</strong>: párrafos cortos, viñetas para enumerar componentes.</li>
+              <li>Que un lector que no conozca el proyecto entienda en 30 segundos <em>qué es</em>, <em>qué resuelve</em> y <em>qué se ha hecho</em>.</li>
+            </ul>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+    <tr>
+      <td>Necesidades del cliente y oportunidad de negocio</td>
+      <td>
+        Existe (mezclado en «Necesidades del sector productivo»).
+        <details class="fix ok">
+          <summary>Pulido recomendado</summary>
+          <div class="contenido">
+            <p>El bloque cumple, pero se recomienda separarlo en dos epígrafes diferenciados para alinearlo al 100 % con la plantilla:</p>
+            <ul>
+              <li><em>Análisis de la situación actual</em> (datos estadísticos del sector).</li>
+              <li><em>Necesidades del cliente y oportunidad de negocio</em> (ubicación, ámbito de actuación, localización de clientes).</li>
+            </ul>
+            <p>Añadir explícitamente la <strong>ubicación</strong> de la empresa, el <strong>ámbito de actuación</strong> (pequeña empresa, sector servicios local) y la <strong>localización</strong> de los clientes (Salamanca capital, polígonos, pueblos del alfoz).</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-baj">OK</span></td>
+    </tr>
+    <tr>
+      <td>El nuevo proyecto · Tipo de proyecto <span class="resuelto">RESUELTO</span></td>
+      <td>
+        <strong>Resuelto en la versión actual del Word</strong>: el TFG ya incluye el epígrafe «Tipo de proyecto» con «Naturaleza del proyecto» (creación de empresa) y «Categoría del proyecto» con los tres bloques (implementación de redes, servicios de red e implantación de software). Pendiente: pequeña errata <em>«privaodo»</em> en la categoría de servicios de red.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Añadir un epígrafe corto («El nuevo proyecto: SaaSphere») con <strong>dos declaraciones explícitas</strong>:</p>
+            <ol>
+              <li><strong>Naturaleza del proyecto</strong>: <em>«Creación</em> de una empresa para dar respuesta a las necesidades de digitalización detectadas en el sector pyme local.» (descartar las otras dos opciones de la plantilla).</li>
+              <li><strong>Tipo de proyecto técnico</strong>: combinación de las tres categorías que la plantilla cita, declaradas en este orden:
+                <ul>
+                  <li><em>Implementación de redes</em> (red privada entre nodos, túneles WireGuard, ingress externo).</li>
+                  <li><em>Implementación de servicios de red</em> (clúster K3s, Traefik, registro privado, Prometheus/Grafana/Loki).</li>
+                  <li><em>Implantación de software</em> (agente OpenClaw, plantillas Jinja2 de tenants, bot Telegram).</li>
+                </ul>
+              </li>
+            </ol>
+            <p>Basta media página; el objetivo es que el tribunal vea que el alumno ha encajado el proyecto en las categorías oficiales del módulo.</p>
+          </div>
+        </details>
+        <details class="fix">
+          <summary>Redacción propuesta (lista para copiar al TFG)</summary>
+          <div class="contenido">
+            <p style="background:#fff; border:1px dashed #c5d8ee; padding:.7em .9em; border-radius:4px;">
+              <strong style="display:block; font-size:13pt; margin-bottom:.4em;">El nuevo proyecto: SaaSphere</strong>
+
+              <em style="display:block; font-weight:bold; margin-top:.6em;">Tipo de proyecto</em>
+
+              <span style="display:block; margin-top:.5em;"><strong>Naturaleza del proyecto.</strong> Este trabajo responde a la <strong>creación</strong> de una empresa nueva, SaaSphere, orientada a cubrir la demanda de hosting gestionado entre las pequeñas empresas y los autónomos del entorno geográfico de Salamanca y su alfoz. No se trata de una nueva línea dentro de una organización ya existente ni de una diversificación hacia otros sectores, sino del nacimiento de una empresa concebida íntegramente alrededor de la plataforma técnica que se desarrolla en el resto de fases del proyecto.</span>
+
+              <span style="display:block; margin-top:.5em;">La empresa se constituye para explotar comercialmente la infraestructura y los servicios que se diseñan e implementan a lo largo del trabajo. Su modelo de negocio se basa en la prestación de servicios bajo el esquema <em>Software as a Service</em> (SaaS), con suscripción mensual por cliente, y se apoya en la inferencia local mediante inteligencia artificial para mantener los costes operativos por debajo de los de las alternativas en la nube comerciales.</span>
+
+              <span style="display:block; margin-top:.6em;"><strong>Categoría técnica del proyecto.</strong> De entre las tres categorías que contempla la guía del módulo —<em>implementación de redes</em>, <em>implementación de servicios de red</em> e <em>implantación de software</em>— este proyecto se sitúa en la intersección de las tres, por su carácter integrador. Cada una de ellas se materializa en un conjunto concreto de elementos.</span>
+
+              <span style="display:block; margin-top:.5em;"><strong>Implementación de redes.</strong> Se diseña y despliega la red privada que interconecta los tres nodos físicos del sistema (LeIA, el host de virtualización ESXi y el nodo Fallback). Se habilita una pasarela VPN basada en WireGuard, alojada en la máquina Heimdall, para permitir el acceso administrativo remoto cifrado al clúster sin exponer servicios sensibles a Internet. La exposición externa de los servicios de los clientes se gestiona de forma controlada mediante el proxy inverso Traefik y certificados TLS automatizados con Let's Encrypt.</span>
+
+              <span style="display:block; margin-top:.5em;"><strong>Implementación de servicios de red.</strong> Sobre la infraestructura anterior se despliega un clúster K3s distribuido, junto con los servicios que conforman su ecosistema operativo: registro privado de imágenes, almacenamiento persistente, stack de observabilidad (Prometheus, Grafana, Loki, Promtail, Alertmanager y Blackbox exporter) y sondas de disponibilidad. Este conjunto garantiza que la plataforma sea monitorizable, escalable y mantenible en producción.</span>
+
+              <span style="display:block; margin-top:.5em;"><strong>Implantación de software.</strong> Se desarrolla OpenClaw, un agente autónomo escrito en Python sobre FastAPI, Pydantic AI y SQLModel, que opera el clúster apoyándose en los modelos de lenguaje Qwen3 servidos en local mediante Ollama. Junto con el agente se implantan las plantillas Jinja2 que describen los tres tipos de tenant soportados (<em>web_app</em>, <em>wordpress</em> y <em>static_site</em>), el bot de Telegram que actúa como interfaz humana y el sistema de aprobaciones por severidad que regula la ejecución de las acciones críticas.</span>
+
+              <span style="display:block; margin-top:.5em;">La combinación de las tres categorías es deliberada: ninguna de ellas, por sí sola, sería suficiente para entregar la propuesta de valor de SaaSphere, ya que el producto final es precisamente la integración de una red propia, un conjunto de servicios desplegados sobre ella y un agente software que la gobierna.</span>
+            </p>
+            <p style="font-size:9.5pt; color:#555; margin-top:.5em;">
+              <strong>Notas de uso</strong>: texto redactado en estilo impersonal, sin primera persona ni voz pasiva traducida del inglés. Aproximadamente media página en Calibri 11 pt. Se ubica después de «Necesidades del cliente y oportunidad de negocio» y antes de «Características requeridas al proyecto».
+            </p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-med">MEDIO</span></td>
+    </tr>
+    <tr>
+      <td>Características requeridas al proyecto</td>
+      <td>
+        Disperso entre «Requisitos funcionales» y «Decisiones de diseño».
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Consolidar en una sola sección titulada <strong>«Características requeridas al proyecto»</strong>, con los cinco subapartados literales que pide la plantilla:</p>
+            <ul>
+              <li><strong>Qué tiene que hacer</strong>: alojar webs/aplicaciones de clientes en namespaces aislados, monitorizar el clúster 24/7, responder a alertas, permitir despliegues y bajas vía conversación con el operador.</li>
+              <li><strong>Elementos diferenciadores</strong>: IA local sin coste por petición, sistema de aprobaciones por severidad, modos <code>normal</code> / <code>dry_run</code> / <code>paused</code>, trazabilidad completa en SQLite.</li>
+              <li><strong>Entorno específico</strong>: homelab con tres nodos físicos, hipervisor VMware ESXi, conectividad doméstica con IP pública dinámica.</li>
+              <li><strong>Justificación de las herramientas</strong>: K3s (ligero, certificado), Qwen3 (rendimiento/tamaño), Ollama (API compatible OpenAI), Pydantic AI (tipado), aiogram (asíncrono, v3 moderna), Traefik (integrado en K3s y ACME automático).</li>
+              <li><strong>Primera aproximación a recursos</strong>: humanos (1 persona, alumno) + materiales (LeIA, Matrix, Sauron, Heimdall, Fallback, GPU dedicada).</li>
+            </ul>
+            <p>Los «Requisitos funcionales / no funcionales» actuales se mueven a la nueva <em>Fase de Análisis</em> (ver fila siguiente).</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-med">MEDIO</span></td>
+    </tr>
+    <tr>
+      <td>Fases: Análisis</td>
+      <td>
+        Mezclado en «Diseño del proyecto». No hay fase de análisis con nombre propio.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Crear un capítulo dedicado <strong>«Fase de Análisis»</strong> dentro de «Diseño del proyecto», con tres bloques:</p>
+            <ol>
+              <li><strong>Requisitos funcionales</strong> (qué tiene que hacer): listar cada uno como RF-01, RF-02… con frase impersonal. Ej.: <em>«RF-04 — El sistema permite desplegar un tenant de tipo WordPress a partir de una plantilla Jinja2 y un nombre de cliente.»</em></li>
+              <li><strong>Requisitos no funcionales</strong> (cómo tiene que comportarse): RNF-01 Latencia de respuesta del agente &lt; 60 s en modo lectura; RNF-02 Disponibilidad mínima 99 %; RNF-03 Aislamiento total entre tenants; RNF-04 Sin coste por inferencia; RNF-05 Trazabilidad de toda acción mutadora…</li>
+              <li><strong>Alcance y restricciones</strong>: qué está dentro (multitenant SaaS sobre K3s con IA local) y qué queda fuera (CDN propia, balanceo geográfico, alta disponibilidad activa-activa).</li>
+            </ol>
+            <p>Las tablas que hoy aparecen en MAYÚSCULAS pueden reutilizarse, simplemente reformateadas a tipo frase y numeradas como RF/RNF.</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+    <tr>
+      <td>Fases: Diseño</td>
+      <td>
+        Existe.
+        <details class="fix ok">
+          <summary>Pulido recomendado</summary>
+          <div class="contenido">
+            <p>Para reforzar este bloque y que cumpla la indicación de la plantilla («describir <strong>cómo</strong> realizar cada requisito»):</p>
+            <ul>
+              <li>Añadir <strong>diagrama de arquitectura</strong> (3 nodos físicos + 3 VMs + flujos de red).</li>
+              <li>Añadir <strong>diagrama entidad-relación</strong> de las 9 tablas SQLite (<code>decisions</code>, <code>actions</code>, <code>approvals</code>, <code>agent_state</code>, <code>conversation_turns</code>, <code>tool_requests</code>, <code>events</code>, <code>tenant_state</code>, <code>metrics_snapshots</code>).</li>
+              <li>Mapear cada RF/RNF de la fase de análisis con la decisión de diseño que lo cumple (tabla de trazabilidad de dos columnas).</li>
+            </ul>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-baj">OK</span></td>
+    </tr>
+    <tr>
+      <td>Fases: Implementación</td>
+      <td>
+        Existe y es lo más extenso.
+        <details class="fix ok">
+          <summary>Pulido recomendado</summary>
+          <div class="contenido">
+            <p>Es el bloque más sólido del TFG. Mejoras menores:</p>
+            <ul>
+              <li>Renumerar las sub-fases para que coincidan índice y cuerpo (eliminar las que no se han ejecutado, p. ej. «Hardening y resiliencia» si no se desarrolla, o moverlas a la sección de <em>Trabajo futuro</em>).</li>
+              <li>Cerrar cada sub-fase con un <strong>checklist final</strong>: «al terminar esta sub-fase el sistema permite X, Y, Z». Da sensación de progreso medible.</li>
+              <li>Convertir las capturas sin pie en figuras numeradas (alimentando el Índice de figuras).</li>
+            </ul>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-baj">OK</span></td>
+    </tr>
+    <tr>
+      <td>Fases: <strong>Pruebas con plantilla formal de casos de prueba</strong> (Fecha · Autor · Caso · Descripción · Condiciones · Entrada · Resultado esperado · Resultado obtenido · Evaluación)</td>
+      <td>
+        <strong>NO existe</strong>. La plantilla incluye literalmente esos campos como ejemplo a usar y tú no has plasmado ni un solo caso de prueba con ese formato.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Crear el capítulo <strong>«Fase de pruebas»</strong> con al menos <strong>10 casos de prueba</strong> formateados exactamente como pide la plantilla. Usar una ficha por caso con esta estructura:</p>
+            <p><code>CP-XX · Fecha · Autor · Versión · Caso · Descripción · Condiciones de ejecución · Entrada · Resultado esperado · Resultado obtenido · Evaluación (OK/KO)</code></p>
+            <p>Propuesta de 10 casos derivados de los RF y de la implementación real:</p>
+            <ol>
+              <li><strong>CP-01</strong> Despliegue de tenant <em>static_site</em> desde Telegram (sin aprobación previa por ser AUTONOMOUS).</li>
+              <li><strong>CP-02</strong> Despliegue de tenant <em>wordpress</em> con aprobación NORMAL por Telegram.</li>
+              <li><strong>CP-03</strong> Intento de mutación sobre <code>kube-system</code> → bloqueado por política.</li>
+              <li><strong>CP-04</strong> Manifiesto sin <code>resources.limits</code> → bloqueado por política.</li>
+              <li><strong>CP-05</strong> Rechazo de aprobación CRITICAL desde Telegram → acción no ejecutada y registrada en <code>actions</code>.</li>
+              <li><strong>CP-06</strong> Modo <code>dry_run</code> activo: la mutación se simula y queda registrada sin aplicar cambios reales en K3s.</li>
+              <li><strong>CP-07</strong> Modo <code>paused</code>: el agente no responde a entradas hasta volver a <code>normal</code>.</li>
+              <li><strong>CP-08</strong> Alerta desde Alertmanager hacia el webhook → análisis automático y aviso por Telegram.</li>
+              <li><strong>CP-09</strong> Caída de Matrix → detección por health loop y notificación al operador.</li>
+              <li><strong>CP-10</strong> Routing de modelos: caso de uso de lectura usa <code>qwen3:8b</code>; caso de uso de análisis profundo usa <code>qwen3:32b</code> con <em>think</em>.</li>
+            </ol>
+            <p>Añadir adicionalmente la <strong>plantilla de reporte de errores</strong> (Fecha · Autor · Caso · Evaluación · Posible causa · Posible corrección · Áreas afectadas) que la plantilla pide en el anexo de pruebas.</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-crit">CRÍTICO</span></td>
+    </tr>
+    <tr>
+      <td>Objetivos a conseguir (técnicos + negocio)</td>
+      <td>
+        <strong>No existe como sección</strong>.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Crear sección «Objetivos a conseguir» justo antes de «Previsión de recursos». Dividir en dos bloques tal y como sugiere la plantilla:</p>
+            <p><strong>Objetivos técnicos / de desarrollo</strong> (medibles y verificables):</p>
+            <ul>
+              <li>Desplegar y mantener un clúster K3s sobre tres nodos físicos con disponibilidad ≥ 99 %.</li>
+              <li>Operar un agente local sobre Qwen3 con latencia &lt; 60 s en consultas de lectura.</li>
+              <li>Soportar al menos tres tipos de tenant (<code>web_app</code>, <code>wordpress</code>, <code>static_site</code>).</li>
+              <li>Garantizar que toda mutación queda registrada con su severidad y aprobación.</li>
+              <li>Cubrir el 100 % de los RF identificados con casos de prueba formalizados.</li>
+            </ul>
+            <p><strong>Objetivos de negocio</strong>:</p>
+            <ul>
+              <li>Captar 9 clientes durante el primer año de explotación.</li>
+              <li>Alcanzar el punto de equilibrio operativo antes del segundo año.</li>
+              <li>Mantener un coste por cliente/mes inferior al de las alternativas cloud comerciales.</li>
+              <li>Posicionar SaaSphere como alternativa local en Salamanca y alfoz.</li>
+            </ul>
+            <p>Cada objetivo debe ir acompañado de su <strong>indicador</strong> (cómo se mide) y, si procede, su <strong>plazo</strong>.</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+    <tr>
+      <td>Previsión de recursos materiales y humanos</td>
+      <td>
+        Solo aparece el hardware. Falta formación, herramientas software y tiempo total.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Ampliar el bloque actual con cuatro tablas breves:</p>
+            <ol>
+              <li><strong>Recursos hardware</strong> (lo que ya hay): LeIA, ESXi-host (Matrix, Sauron, Heimdall como VMs), Fallback, GPU dedicada, almacenamiento, router.</li>
+              <li><strong>Recursos software</strong>: K3s, Ollama, Qwen3 8b/32b, Traefik, Prometheus, Grafana, Loki, Promtail, Alertmanager, Blackbox, WireGuard, fail2ban, UFW, auditd, Python 3.12, FastAPI, Pydantic AI, SQLModel, aiogram, Jinja2. Indicar licencia de cada uno (mayoritariamente FOSS).</li>
+              <li><strong>Recursos humanos y formación</strong>: 1 persona (alumno) con conocimientos previos en redes, Linux y Python. Formación adicional necesaria: Kubernetes/K3s, programación asíncrona en Python, Pydantic AI, observabilidad con Prometheus/Grafana, WireGuard.</li>
+              <li><strong>Tiempo total estimado</strong>: indicar horas o semanas dedicadas por fase y total acumulado (referencia a la planificación / cronograma de la fila siguiente).</li>
+            </ol>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-med">MEDIO</span></td>
+    </tr>
+    <tr>
+      <td>Presupuesto económico (del proyecto, no del modelo de negocio)</td>
+      <td>
+        <strong>NO existe</strong>. Tienes costes del SaaS para clientes, pero no el presupuesto de ejecución de este proyecto fin de ciclo.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Crear sección <strong>«Presupuesto económico del proyecto»</strong>, claramente separada del modelo de negocio. Tabla con tres bloques:</p>
+            <ul>
+              <li><strong>Coste de hardware</strong>: precio real (o tasado) de cada nodo, GPU, discos, switch, cableado. Aunque sea reutilizado, valorarlo a precio de mercado actual.</li>
+              <li><strong>Coste de software y licencias</strong>: la mayoría es FOSS (0 €), pero contabilizar VMware ESXi (si licencia de pago), dominio, IP fija (si aplica), copias de seguridad externas.</li>
+              <li><strong>Coste de mano de obra</strong>: horas reales × tarifa de mercado de un perfil técnico júnior (orientativo, p. ej. 18–22 €/h). Si el proyecto ha consumido X horas en Y fases, el resultado es el «coste técnico de ejecución del TFG».</li>
+            </ul>
+            <p>Cerrar con un <strong>presupuesto total</strong> (hardware + software + mano de obra) y una nota breve: «este presupuesto refleja el coste de ejecución del proyecto, no la oferta comercial al cliente final».</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+    <tr>
+      <td>Planificación de la ejecución (cronograma)</td>
+      <td>
+        Implícito en los tiempos por fase («3H», «1 día», «2/4 semanas»). No hay Gantt ni cronograma visual.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Añadir un <strong>diagrama de Gantt sencillo</strong> en la sección «Planificación de la ejecución del proyecto». No hace falta software especializado:</p>
+            <ul>
+              <li>Filas = fases del proyecto (Fase 1 a Fase 8/9).</li>
+              <li>Columnas = semanas (o quincenas) del curso 2025/26.</li>
+              <li>Barras coloreadas según el bloque (análisis, diseño, implementación, pruebas).</li>
+            </ul>
+            <p>Herramientas válidas: <em>draw.io</em>, <em>Excalidraw</em>, <em>LibreOffice Calc</em> con celdas coloreadas, <em>Mermaid</em> (<code>gantt</code>). Exportar como imagen y referenciarla como figura numerada (alimenta el Índice de figuras).</p>
+            <p>Justo encima del Gantt, listar las <strong>actividades concretas de cada fase</strong> tal y como hace la plantilla en su página 13 («Fase de Análisis: estudio de necesidades, estudio de la situación actual, establecimiento de requisitos…»). Eso da contenido a la sección, no solo el dibujo.</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+    <tr>
+      <td><strong>Definición de Procedimientos de Control y Evaluación</strong></td>
+      <td>
+        <strong>FALTA</strong>. Aparece literalmente como <em>«¡Error! Marcador no definido.»</em> en el índice. Es una sección obligatoria de la plantilla.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Crear la sección desde cero (1–2 páginas) con dos bloques que la plantilla nombra expresamente:</p>
+            <ol>
+              <li><strong>Procedimiento de evaluación de incidencias</strong>:
+                <ul>
+                  <li>Cómo se detecta una incidencia (alerta de Alertmanager, health loop de OpenClaw, aviso del operador por Telegram, fallo en pruebas).</li>
+                  <li>Cómo se clasifica (severidad: crítica, alta, media, baja).</li>
+                  <li>Cómo se registra (tabla <code>events</code> y <code>actions</code> de SQLite; mensaje en el chat de Telegram).</li>
+                  <li>Cómo se resuelve (responsable, plazo objetivo, vía de escalado).</li>
+                </ul>
+              </li>
+              <li><strong>Procedimiento de gestión de cambios</strong>:
+                <ul>
+                  <li>Cómo se solicita un cambio (nueva funcionalidad, modificación de alcance, cambio de hardware).</li>
+                  <li>Cómo se evalúa el impacto (recursos, plazos, dependencias con otras fases).</li>
+                  <li>Cómo se aprueba (criterio del alumno + visto bueno del tutor en el TFG; en explotación, decisión del operador).</li>
+                  <li>Cómo se documenta el cambio aplicado.</li>
+                </ul>
+              </li>
+            </ol>
+            <p>Es la sección con peor relación esfuerzo/impacto: muy poco trabajo, pero su ausencia es uno de los puntos más visibles del documento (<em>«¡Error! Marcador no definido.»</em> en el índice).</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-crit">CRÍTICO</span></td>
+    </tr>
+    <tr>
+      <td>Fuentes</td>
+      <td>
+        Existe pero <strong>insuficiente</strong> (11 enlaces, incluyendo <code>www.chatgpt.com</code> que no es citable). Falta documentación oficial de K3s, Ollama, Pydantic AI, Traefik, WireGuard, Alertmanager, aiogram…
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p><strong>Eliminar</strong> <code>www.chatgpt.com</code> de la bibliografía. Si se quiere reconocer su uso como apoyo, declararlo en una <em>nota metodológica</em> al final de la introducción, no como fuente.</p>
+            <p>Añadir, como mínimo, la documentación oficial de cada componente clave (formato APA con fecha de consulta):</p>
+            <ul>
+              <li><a href="https://docs.k3s.io">docs.k3s.io</a> — K3s</li>
+              <li><a href="https://ollama.com/library/qwen3">ollama.com/library/qwen3</a> — Qwen3 sobre Ollama</li>
+              <li><a href="https://ai.pydantic.dev">ai.pydantic.dev</a> — Pydantic AI</li>
+              <li><a href="https://doc.traefik.io/traefik/">doc.traefik.io</a> — Traefik</li>
+              <li><a href="https://www.wireguard.com/">wireguard.com</a> — WireGuard</li>
+              <li><a href="https://prometheus.io/docs/">prometheus.io/docs</a> — Prometheus</li>
+              <li><a href="https://grafana.com/docs/">grafana.com/docs</a> — Grafana</li>
+              <li><a href="https://grafana.com/docs/loki/">grafana.com/docs/loki</a> — Loki</li>
+              <li><a href="https://prometheus.io/docs/alerting/latest/alertmanager/">Alertmanager</a></li>
+              <li><a href="https://docs.aiogram.dev">docs.aiogram.dev</a> — aiogram v3</li>
+              <li><a href="https://sqlmodel.tiangolo.com">sqlmodel.tiangolo.com</a> — SQLModel</li>
+              <li><a href="https://fastapi.tiangolo.com">fastapi.tiangolo.com</a> — FastAPI</li>
+              <li><a href="https://letsencrypt.org/docs/">letsencrypt.org/docs</a> — Let's Encrypt / ACME</li>
+              <li>INE / Ministerio de Industria: enlace concreto + año del informe de digitalización citado.</li>
+            </ul>
+            <p>Objetivo: 20–25 referencias bien escogidas (oficiales o académicas), citadas en el cuerpo del texto allí donde se introduce la herramienta o el dato.</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+    <tr>
+      <td>Anexos</td>
+      <td>
+        El anexo solo repite la guía de estilo de la plantilla. No añades NADA propio: ni capturas extra, ni manifiestos completos, ni configuración de WireGuard, ni esquema de red, ni manual de operación.
+        <details class="fix">
+          <summary>Cómo solucionarlo</summary>
+          <div class="contenido">
+            <p>Crear anexos propios, numerados, referenciados desde el cuerpo del documento. Propuesta concreta:</p>
+            <ul>
+              <li><strong>Anexo A — Manifiesto Jinja2 renderizado de ejemplo</strong>: tomar <code>wordpress.yaml.j2</code>, renderizarlo con un cliente ficticio y pegar el YAML final. Demuestra cómo se generan los recursos K8s.</li>
+              <li><strong>Anexo B — Comandos del bot de Telegram</strong>: tabla con <code>/status</code>, <code>/pending</code>, <code>/pause</code>, <code>/resume</code>, <code>/kill</code>, <code>/think</code>, <code>/forget</code>, <code>/toolrequests</code> y descripción de cada uno.</li>
+              <li><strong>Anexo C — Configuración WireGuard de ejemplo</strong>: cliente y servidor, con las claves anonimizadas (<code>&lt;PRIVATE_KEY&gt;</code>, <code>&lt;PUBLIC_KEY&gt;</code>).</li>
+              <li><strong>Anexo D — Esquema entidad-relación</strong> de las 9 tablas SQLite usadas por OpenClaw.</li>
+              <li><strong>Anexo E — Esquema de red</strong>: diagrama con IPs, VLAN, túneles WireGuard, exposición externa, registro privado.</li>
+              <li><strong>Anexo F — Tabla de routing de modelos</strong> (CaseUse × modelo × think × motivo).</li>
+              <li><strong>Anexo G — Configuración multinivel</strong>: ejemplo real de <code>/etc/openclaw/config.toml</code> y de variables <code>OPENCLAW_*</code>.</li>
+              <li><strong>Anexo H — Manual de operación</strong>: pasos para arrancar/parar el sistema, restaurar un tenant, rotar claves, actualizar el modelo.</li>
+              <li><strong>Anexo I — Guía de estilo</strong> de la plantilla (la actual; se conserva al final).</li>
+            </ul>
+            <p>Buena parte de este material ya existe en <code>obsidian/wiki/</code> y en los repos del proyecto: el coste real es exportarlo y darle formato, no escribirlo desde cero.</p>
+          </div>
+        </details>
+      </td>
+      <td><span class="badge b-alto">ALTO</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>2. Lo más grave: errores estructurales del propio documento</h2>
+
+<h3>2.1. Marcadores rotos en el índice <span class="badge b-crit">CRÍTICO</span></h3>
+<p>En el índice de contenidos aparecen literalmente:</p>
+<div class="cita">
+  Fase 10: Demo/pruebas ........................ <strong>¡Error! Marcador no definido.</strong><br>
+  Diseño Del Proyecto ........................... <strong>¡Error! Marcador no definido.</strong><br>
+  Pruebas ......................................... <strong>¡Error! Marcador no definido.</strong><br>
+  Definición De Procedimientos De Control Y Evaluación ... <strong>¡Error! Marcador no definido.</strong>
+</div>
+<p>Esto es el indicador más visible de que el documento <strong>no se ha revisado antes de exportar a PDF</strong>. Un tribunal lo verá al abrir la primera página de índice. Hay que regenerar el índice tras corregir o reinsertar esos epígrafes.</p>
+
+<h3>2.2. Índice de contenidos con primera entrada en blanco <span class="badge b-alto">ALTO</span></h3>
+<p>La primera línea del índice es <code>.................................................................................................. 1</code> sin texto. Word la genera porque hay un párrafo con estilo Heading al inicio del documento. Hay que borrarlo.</p>
+
+<h3>2.3. Numeración de fases incoherente <span class="badge b-crit">CRÍTICO</span></h3>
+<p>El índice promete:</p>
+<ul>
+  <li>Fase 7 → <em>Despliegue de LeIA</em> con sub-fases 1 a 10.</li>
+  <li>Sub-fase 8 → <strong>SSH controlado</strong> (índice) / <strong>Cargas de trabajo</strong> (cuerpo).</li>
+  <li>Sub-fase 9 → <strong>Hardening y resiliencia</strong> (índice) → <strong>no aparece en el cuerpo</strong>.</li>
+  <li>Sub-fase 10 → <strong>Demo/pruebas</strong> (índice) → marcador roto.</li>
+  <li>Fase 8 del proyecto → <em>Pruebas generales</em>.</li>
+</ul>
+<p>Esto es directamente inconsistente. O eliminas las fases que no has hecho del índice, o las haces, o las marcas claramente como «trabajo futuro» en una sección dedicada. Tal y como está parece que entregas a medias.</p>
+
+<h3>2.4. Errata en el recuento de nodos del resumen <span class="badge b-alto">ALTO</span></h3>
+<p>El resumen ha sido reescrito y la narrativa es ahora correcta: hay <strong>3 nodos físicos</strong> (LeIA, ESXi-host, Fallback) y <strong>3 nodos virtuales</strong> alojados sobre el ESXi (Matrix, Sauron, Heimdall), lo que suma <strong>6 nodos en total</strong>. El problema es únicamente una errata en la cifra:</p>
+<div class="cita">«El ecosistema de SaaSphere cuenta con <strong>5 nodos</strong>, 3 virtuales y 3 físicos…».</div>
+<p>3 + 3 = 6, no 5. <strong>Cómo arreglarlo:</strong> cambiar <em>«5 nodos»</em> por <em>«6 nodos»</em> en esa frase del resumen, o bien eliminar el total y dejar solo <em>«3 nodos virtuales sobre 3 nodos físicos»</em>. Verificar después que ese mismo recuento se utiliza también en la sección 3.1 «Visión general» de Arquitectura (hoy dice <em>«tres nodos físicos»</em>, lo cual es coherente con esta lectura). Para más detalle sobre la sección de arquitectura, ver el apartado 7.</p>
+
+<h3>2.5. Inconsistencia de nombres del proyecto <span class="badge b-alto">ALTO</span> <span class="resuelto">PARCIAL</span></h3>
+<p><strong>Corregido</strong>: la mención a <em>«nemoclaw»</em> de la introducción ha sido sustituida por <em>«Openclaw»</em>. <strong>Persiste</strong> la variación tipográfica del nombre del agente, que aparece como <em>Openclaw</em>, <em>OpenClaw</em> y <em>openclaw</em> a lo largo del documento. La grafía oficial del repositorio es <strong>OpenClaw</strong> (camelCase, ambas mayúsculas), y conviene unificarla. Sigue siendo recomendable insertar la caja de nomenclatura al principio del documento:</p>
+<div class="caja">
+  <strong>Nomenclatura del proyecto</strong>
+  <ul>
+    <li><strong>SaaSphere</strong>: empresa ficticia / proyecto / plataforma comercial.</li>
+    <li><strong>LeIA</strong>: nodo físico que aloja el agente de IA.</li>
+    <li><strong>OpenClaw</strong>: software del agente que se ejecuta dentro del nodo LeIA.</li>
+  </ul>
+</div>
+<p>Y se mantiene esa nomenclatura en todo el documento, sin variaciones tipográficas.</p>
+
+<h3>2.6. El proyecto no se entiende sin un glosario y un diagrama <span class="badge b-crit">CRÍTICO</span></h3>
+<p>Términos que usas decenas de veces sin definir nunca:</p>
+<ul>
+  <li><strong>Tenant</strong> — palabra clave del proyecto, nunca explicada. Un profesor que no haya trabajado con k8s/k3s puede no saber qué es.</li>
+  <li><strong>Namespace</strong> — explicado de pasada.</li>
+  <li><strong>Mutación</strong> / <strong>aprobación</strong> — términos del agente, sin marco.</li>
+  <li><strong>Caso de uso</strong> (CaseUse) — concepto central de OpenClaw, nunca presentado.</li>
+  <li><strong>Modo think</strong> de Qwen3 — citado pero no explicado.</li>
+  <li><strong>Pydantic AI</strong> — citado sin contextualizar.</li>
+  <li><strong>Ingress</strong>, <strong>Taint NoSchedule</strong>, <strong>Webhook</strong>, <strong>Scheduler</strong>, <strong>Watcher</strong>…</li>
+</ul>
+<p>Necesitas un <strong>glosario</strong> al principio (1 página) y un <strong>diagrama de arquitectura</strong> en la sección de diseño. Tienes algo en <code>obsidian/wiki/</code> que podrías exportar como diagrama Mermaid renderizado.</p>
+
+<h3>2.7. Las pruebas no son pruebas <span class="badge b-crit">CRÍTICO</span></h3>
+<p>La plantilla obliga a documentar las pruebas con un formato específico. Lo que tú tienes son <strong>capturas de pantalla con la frase «se aprecia que funciona»</strong>. Eso no es una prueba. Ejemplos del documento:</p>
+<div class="cita">«Se aprecia que el panel está funcionando de manera correcta.»</div>
+<div class="cita">«Los resultados son correctos y todas las maquinas tienen conexión entre ellas».</div>
+<p>Cada caso de prueba debería tener: <em>identificador, descripción, condiciones de ejecución, entrada, resultado esperado, resultado obtenido, evaluación</em>. Te recomiendo al menos <strong>10 casos de prueba formalizados</strong> que cubran los requisitos funcionales que listas en la sección 1.1.</p>
+
+<hr>
+
+<h2>3. Lo que de verdad has hecho y no se entiende</h2>
+
+<p>Has construido algo bastante más complejo de lo que el documento refleja. Esto es lo que existe en el repositorio y <strong>no se ve en el TFG</strong>:</p>
+
+<table>
+  <thead>
+    <tr><th>Lo que hiciste</th><th>Lo que el TFG cuenta</th><th>Qué falta</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sistema de <strong>aprobaciones por severidad</strong> (AUTONOMOUS / NORMAL / CRITICAL) con timeouts y recordatorios.</td>
+      <td>«Algunas cosas piden permiso, otras no».</td>
+      <td>Tabla con los niveles, qué acciones caen en cada nivel y por qué.</td>
+    </tr>
+    <tr>
+      <td><strong>Política de seguridad</strong>: namespaces de sistema bloqueados, whitelist <code>saasphere.io/tenant=true</code>, manifiestos prohibidos (Secret, ServiceAccount, Role, Pod), validación de límites cpu/memory.</td>
+      <td>Una frase: «Estas son las acciones que tiene prohibidas».</td>
+      <td>Sección de seguridad con la matriz completa de reglas y por qué cada una.</td>
+    </tr>
+    <tr>
+      <td><strong>RBAC en K3s</strong> con cuenta restringida para el agente.</td>
+      <td>Dos frases.</td>
+      <td>El YAML del RoleBinding y la justificación.</td>
+    </tr>
+    <tr>
+      <td><strong>Routing entre Qwen3:8b y Qwen3:32b</strong> según caso de uso (lectura rápida vs análisis profundo) con cache por <code>(case_use, model, think)</code>.</td>
+      <td>Una frase suelta.</td>
+      <td>Tabla de casos de uso × modelo × think × motivo. <strong>Es uno de los puntos fuertes del proyecto y lo despachas en un párrafo</strong>.</td>
+    </tr>
+    <tr>
+      <td>Persistencia con SQLModel + aiosqlite: <code>decisions</code>, <code>actions</code>, <code>approvals</code>, <code>agent_state</code>, <code>conversation_turns</code>, <code>tool_requests</code>, <code>events</code>, <code>tenant_state</code>, <code>metrics_snapshots</code>.</td>
+      <td>«La tabla decisiones almacena cada decisión».</td>
+      <td>Diagrama entidad-relación, una sola página, explica las 9 tablas. Esto demuestra que has pensado en trazabilidad.</td>
+    </tr>
+    <tr>
+      <td>Memoria conversacional de dos capas (sliding window por chat).</td>
+      <td>Nada.</td>
+      <td>Mencionarlo, aunque sea un párrafo.</td>
+    </tr>
+    <tr>
+      <td>Modos del agente: <code>normal</code> / <code>dry_run</code> / <code>paused</code>.</td>
+      <td>De pasada en Fase 4.</td>
+      <td>Sección propia: qué hace cada modo, cómo se cambia, cuándo se usa.</td>
+    </tr>
+    <tr>
+      <td><strong>Plantillas Jinja2</strong> para tenants (<code>web_app</code>, <code>wordpress</code>, <code>static_site</code>) con renderizado y aplicación vía cliente K8s.</td>
+      <td>Una frase.</td>
+      <td>Esto es un capítulo completo: tipos de tenant soportados, ejemplo de manifiesto generado, ciclo de despliegue, comportamiento ante caída.</td>
+    </tr>
+    <tr>
+      <td>Telegram con <code>aiogram v3</code>: comandos <code>/status /pending /pause /resume /kill /think /forget /toolrequests</code> y callbacks de aprobación inline.</td>
+      <td>Capturas sin explicación de qué comandos hay.</td>
+      <td>Listado de comandos con descripción.</td>
+    </tr>
+    <tr>
+      <td>12 métricas Prometheus expuestas en <code>/metrics</code>.</td>
+      <td>«Existen varias métricas que se han ido recogiendo dentro de este panel de grafana». Captura sin describir.</td>
+      <td>Tabla con las 12 métricas (nombre, tipo, qué mide). Lo tienes en el código.</td>
+    </tr>
+    <tr>
+      <td>Configuración multinivel (<code>OPENCLAW_*</code> env → <code>/etc/openclaw/.env</code> → <code>/etc/openclaw/config.toml</code> → defaults pydantic).</td>
+      <td>Nada.</td>
+      <td>Una página de configuración con un ejemplo real.</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2>4. Problemas de redacción y estilo (catálogo)</h2>
+
+<h3>4.1. Primera persona omnipresente <span class="badge b-crit">CRÍTICO</span></h3>
+<p>La plantilla lo prohíbe expresamente. Tu TFG está plagado:</p>
+<ul>
+  <li><em>«he pensado que una IA…»</em> → <em>«se ha planteado que una IA…»</em></li>
+  <li><em>«voy a crear un primer cliente»</em> → <em>«se crea un primer cliente»</em></li>
+  <li><em>«muevo los archivos a su lugar»</em> → <em>«se mueven los archivos a su ubicación»</em></li>
+  <li><em>«intento averiguar»</em> → <em>«se intenta averiguar»</em></li>
+  <li><em>«me ha dado»</em> → <em>«se obtiene»</em></li>
+  <li><em>«vamos a probar»</em> → <em>«se procede a probar»</em></li>
+  <li><em>«AL ver que no encuentra»</em> → <em>«Al detectarse que no encuentra»</em></li>
+  <li><em>«probamos a conectarnos»</em> → <em>«se prueba a conectar»</em></li>
+  <li><em>«le insisto en crearlo»</em> → <em>«se reitera la petición de creación»</em></li>
+</ul>
+<p>Esto solo es buscar y reemplazar, pero hay que hacerlo en todo el documento. Una pasada completa.</p>
+
+<h3>4.2. Tono coloquial inapropiado <span class="badge b-alto">ALTO</span></h3>
+<div class="cita">«hasta un niño puede hacerlo»<br>«Un tonto le ha dicho a un listo qué hacer»<br>«asi de simple»<br>«MUY cara»</div>
+<p>Quita esto. En un TFG no caben metáforas paternalistas ni énfasis en mayúsculas. Si quieres explicar la idea (modelo pequeño guiado por un sistema bien diseñado), reformúlalo:</p>
+<blockquote>«La hipótesis del proyecto es que un modelo de lenguaje pequeño, ejecutado en local sobre hardware doméstico, puede operar infraestructura de forma fiable si el sistema le proporciona herramientas acotadas, políticas explícitas y un mecanismo de aprobación humana sobre las acciones críticas.»</blockquote>
+
+<h3>4.3. Errores tipográficos / ortográficos <span class="badge b-alto">ALTO</span></h3>
+<p>Lista no exhaustiva, encontrados durante la lectura:</p>
+<table>
+  <tr><th>Aparece como</th><th>Debería ser</th><th>Dónde</th></tr>
+  <tr><td><em>nemoclaw</em></td><td>OpenClaw</td><td>Introducción</td></tr>
+  <tr><td><em>trafik</em></td><td>Traefik</td><td>Resumen</td></tr>
+  <tr><td><em>lets Encrypt</em></td><td>Let's Encrypt</td><td>Resumen</td></tr>
+  <tr><td><em>Vmware ESXI</em> / <em>VMware ESXI</em></td><td>VMware ESXi</td><td>Varios sitios</td></tr>
+  <tr><td><em>k3ss</em></td><td>K3s</td><td>Fase 5</td></tr>
+  <tr><td><em>kluster</em></td><td>clúster</td><td>Dificultad 3</td></tr>
+  <tr><td><em>steam de Kubernetes</em></td><td>stream de Kubernetes</td><td>Fase 6</td></tr>
+  <tr><td><em>intalados</em></td><td>instalados</td><td>Fase 1 LeIA</td></tr>
+  <tr><td><em>se a analice</em></td><td>se analice</td><td>Dificultad 3</td></tr>
+  <tr><td><em>aun que</em></td><td>aunque</td><td>Fase 2 LeIA</td></tr>
+  <tr><td><em>asi</em></td><td>así</td><td>Múltiples</td></tr>
+  <tr><td><em>tendra</em>, <em>podra</em>, <em>operara</em>, <em>guardara</em></td><td>tendrá, podrá, operará, guardará</td><td>Múltiples</td></tr>
+  <tr><td><em>análisis basándolo</em></td><td>cacofonía; reformular: <em>«El análisis se basa en…»</em></td><td>Análisis competencia</td></tr>
+  <tr><td><em>«Mas tarde»</em></td><td>«Más tarde»</td><td>Fase 6</td></tr>
+  <tr><td><em>«AL ver»</em></td><td>«Al ver»</td><td>Fase 8 Pruebas</td></tr>
+  <tr><td><em>«el codigo»</em></td><td>«el código»</td><td>Desventajas</td></tr>
+  <tr><td><em>«analisis»</em></td><td>«análisis»</td><td>Múltiples</td></tr>
+  <tr><td><em>«conclusion del analisis»</em></td><td>«Conclusión del análisis»</td><td>Apartado homónimo</td></tr>
+  <tr><td><em>«clúster operativo»</em> y luego <em>«kluster»</em></td><td>Decide una grafía y mantenla</td><td>Múltiples</td></tr>
+  <tr><td><em>«ollama»</em>, <em>«Ollama»</em></td><td>Ollama (siempre)</td><td>Múltiples</td></tr>
+  <tr><td><em>«telegram»</em>, <em>«Telegram»</em></td><td>Telegram (siempre, es nombre propio)</td><td>Múltiples</td></tr>
+</table>
+
+<h3>4.4. Pie de página defectuoso <span class="badge b-med">MEDIO</span></h3>
+<p>En el pie de TODAS las páginas aparece <code>Curso: 2025/26página X de 74</code> sin espacio ni tabulación entre <em>2025/26</em> y <em>página</em>. La plantilla lo separa con un tabulador y una fuente Arial. Revisa el pie en Word.</p>
+
+<h3>4.5. Mayúsculas en cabeceras de tabla <span class="badge b-med">MEDIO</span></h3>
+<p>Las tablas de Requisitos funcionales y no funcionales tienen todo el contenido en MAYÚSCULAS. La plantilla pide evitar mayúsculas salvo en títulos. Pásalo a tipo frase: <em>«Desplegar servicios de forma distribuida entre varios nodos»</em>.</p>
+
+<hr>
+
+<h2>5. Problemas técnicos en el contenido</h2>
+
+<h3>5.1. Datos del modelo de negocio cuestionables <span class="badge b-alto">ALTO</span></h3>
+<ul>
+  <li>Citas precios de <em>GPT-5.5</em>, <em>Claude Opus 4.7</em>, <em>Claude Sonnet 4.6</em>… con cifras concretas. <strong>Esos precios no son los públicos reales</strong>. Si los inventas, dilo («estimación basada en…»). Si no, cita la fuente con fecha de consulta.</li>
+  <li>Márgenes del 95–99 % son <strong>irrealistas</strong>. No has contado: adquisición de cliente (publicidad, prospección), churn, soporte real, impuestos, software de gestión que ya cuentas pero solo a medias, amortización del hardware… Un margen bruto realista en SaaS micro suele rondar 60–75 %.</li>
+  <li>Rentabilidad con 9 clientes al año: el coste de captación de cada cliente (CAC) en este sector está en cientos de euros. No lo modelas.</li>
+  <li><em>«Cuenta max de Claude para desarrollo web 900€/mes»</em> es una tarifa concreta de Anthropic. Cita o reformula.</li>
+</ul>
+
+<h3>5.2. Cifras estadísticas sin fuentes claras <span class="badge b-med">MEDIO</span></h3>
+<p>La tabla de digitalización empresarial (84,5 % / 65 % / 50 % / 25 %) está bien presentada pero <strong>la fuente la enlazas en general al final</strong>, no al pie de la tabla. La buena práctica es citar la fuente justo bajo la tabla. Y el dato de «6.035 grandes empresas» también debe llevar fuente. Comprueba <code>industria.gob.es</code> y data con la URL completa + fecha.</p>
+
+<h3>5.3. Fuentes insuficientes / no académicas <span class="badge b-alto">ALTO</span></h3>
+<ul>
+  <li><code>www.chatgpt.com</code> <strong>no es una fuente citable</strong>. Bórralo. Si usaste ChatGPT como apoyo, declárolo en una nota metodológica, no como fuente.</li>
+  <li>Faltan: <a href="https://docs.k3s.io">docs.k3s.io</a>, <a href="https://ollama.com/library/qwen3">ollama.com/library/qwen3</a>, <a href="https://ai.pydantic.dev">ai.pydantic.dev</a>, documentación de Traefik, de WireGuard, de Alertmanager, de aiogram, de Pydantic, de SQLModel.</li>
+  <li>Falta cualquier referencia bibliográfica formal (libros, papers, white papers). Para un TFG técnico bastan 20–25 fuentes bien escogidas.</li>
+</ul>
+
+<h3>5.4. Ausencias técnicas relevantes <span class="badge b-alto">ALTO</span></h3>
+<ul>
+  <li><strong>RGPD/LOPD</strong>: vas a alojar webs de clientes. No hay una sola palabra sobre tratamiento de datos personales, encargado de tratamiento, contratos, copia de seguridad y derechos ARSULIPO.</li>
+  <li><strong>Plan de recuperación ante desastres</strong>: hablas de backups pero no del plan: cada cuánto, dónde, cómo se restaura, RPO/RTO.</li>
+  <li><strong>Plan de mantenimiento</strong>: ¿cómo se actualizan los nodos? ¿cuándo? ¿quién monitoriza al monitor (Sauron)?</li>
+  <li><strong>Riesgos del proyecto</strong>: no hay análisis de riesgos. Es una sección esperable.</li>
+  <li><strong>Esquema de red (diagrama)</strong>: imprescindible. IPs, VLAN, túneles WireGuard, exposición externa, registro privado.</li>
+</ul>
+
+<hr>
+
+<h2>6. Las dificultades y la fase de pruebas se quedan a medias</h2>
+
+<h3>6.1. «Mayores dificultades» <span class="badge b-med">MEDIO</span></h3>
+<p>Está bien que tengas esta sección, pero:</p>
+<ul>
+  <li>Dificultad 1 está bien (drivers CUDA), pero termina sin lección aprendida formal.</li>
+  <li>Dificultad 2 (pérdida de drivers tras kernel upgrade) está mal jerarquizada: no es subapartado de Dificultad 1.</li>
+  <li>Dificultad 3 (OpenClaw confundiéndose a sí mismo con un tenant) <strong>es una historia buenísima</strong> y la cuentas en 4 líneas. Esto demuestra que tu agente reflexiona sobre alertas reales. Desarróllala: qué pasó, cómo lo detectaste, cómo lo resolviste (la regla de no analizar alertas que empiecen por «openclaw»), qué aprendiste sobre auto-referencias en agentes autónomos.</li>
+</ul>
+
+<h3>6.2. La «primera prueba» (SaaSphere) es ANTI-publicidad <span class="badge b-alto">ALTO</span></h3>
+<p>El relato de la prueba dice: «la IA me lo impide, no entiendo por qué, le insisto, le rellena los datos, hay un error porque no me da el path, lo borro y lo vuelvo a crear». <strong>Esto se lee como un sistema que no funciona</strong>. Lo que realmente cuenta es:</p>
+<blockquote>«Durante la primera prueba se detectó que la política de validación de nombres de tenant no aceptaba mayúsculas y que la respuesta del modelo era ambigua. Se reproduce el error, se diagnostica como una limitación de validación (no del modelo), y se documenta. La creación posterior se completa correctamente, devolviendo la ruta de despliegue».</blockquote>
+<p>Es la misma historia, pero te hace parecer competente en vez de improvisando.</p>
+
+<hr>
+
+<h2>7. Sección de Arquitectura: revisión detallada</h2>
+
+<p>La sección «3. Arquitectura» del Word merece una reescritura prácticamente íntegra. No por falta de información, sino porque la que hay <strong>está mal organizada, contiene incoherencias internas y no representa lo que realmente se ha construido</strong>. A continuación se enumeran los seis problemas concretos y, al final, una propuesta de reescritura lista para sustituir la actual.</p>
+
+<h3>7.1. Las máquinas virtuales aparecen como «nodos físicos» <span class="badge b-crit">CRÍTICO</span></h3>
+<div class="arquitectura-box">
+  <strong>Qué pasa:</strong> la sección «3.2 Nodos Físicos» enumera, bajo ese título, a Heimdall, Sauron y Matrix, que son <strong>máquinas virtuales</strong> alojadas dentro del nodo ESXi. Se mezclan en la misma sección elementos físicos (LeIA, ESXi, Fallback) y virtuales (Heimdall, Sauron, Matrix).
+</div>
+<div class="arquitectura-box fix-box">
+  <strong>Cómo arreglarlo:</strong> partir la sección en dos epígrafes:
+  <ul>
+    <li><strong>3.2 Nodos físicos</strong>: LeIA, ESXi-host, Fallback. Una tabla con sus especificaciones de hardware.</li>
+    <li><strong>3.3 Nodos virtuales (alojados sobre ESXi)</strong>: Matrix, Sauron, Heimdall. Una tabla con SO, RAM, vCPU, disco, rol y servicios.</li>
+  </ul>
+  Así desaparece la ambigüedad y el lector entiende a la primera la topología real.
+</div>
+
+<h3>7.2. La arquitectura dice «Nginx» cuando todo el proyecto usa Traefik <span class="badge b-crit">CRÍTICO</span></h3>
+<div class="arquitectura-box">
+  <strong>Qué pasa:</strong> en la sección de arquitectura, <strong>Nginx aparece cuatro veces</strong> como proxy inverso del sistema:
+  <ul>
+    <li>Tabla de VMs: «Matrix · Servicios: K3s, Docker, <strong>Nginx</strong>».</li>
+    <li>Estructura por capas, capa 4: «WireGuard, Prometheus + Grafana + Loki, <strong>Nginx</strong>».</li>
+    <li>Funcionamiento normal: «El tráfico externo entra por el proxy inverso (<strong>Nginx</strong> en Matrix)…».</li>
+    <li>Prioridad de restauración: «Proxy inverso (<strong>Nginx</strong>)».</li>
+  </ul>
+  Pero en la fase de implementación (página 32) el documento dice literalmente: «se han necesitado herramientas como <strong>Traefik</strong>, que actúa enrutando las peticiones web… gestiona los certificados TLS, usando ACME de Let's Encrypt». Y el proyecto real usa Traefik (es el ingress integrado en K3s).
+</div>
+<div class="arquitectura-box fix-box">
+  <strong>Cómo arreglarlo:</strong> sustituir <strong>todas</strong> las menciones a Nginx en la sección de arquitectura por Traefik. Es buscar y reemplazar. Si en algún momento se usó Nginx como prueba inicial, mencionarlo solo en la fase de implementación («se descarta Nginx en favor de Traefik por venir integrado en K3s y por su soporte nativo de ACME»).
+</div>
+
+<h3>7.3. Falta el diagrama de arquitectura <span class="badge b-crit">CRÍTICO</span></h3>
+<div class="arquitectura-box">
+  <strong>Qué pasa:</strong> la sección de arquitectura es íntegramente <strong>texto + tablas</strong>. No hay ni un solo diagrama visual que permita ver de un vistazo cómo se relacionan los componentes. Para un tribunal que abra el documento por esta sección, es imposible entender la topología sin leer cuatro páginas seguidas.
+</div>
+<div class="arquitectura-box fix-box">
+  <strong>Cómo arreglarlo:</strong> añadir <strong>un único diagrama</strong> al inicio de la sección 3.1 (Visión general), antes del texto explicativo. Debe mostrar:
+  <ul>
+    <li>Los 3 nodos físicos (LeIA, ESXi-host, Fallback) como cajas exteriores.</li>
+    <li>Dentro de ESXi-host, las 3 VMs (Matrix, Sauron, Heimdall) como cajas anidadas.</li>
+    <li>Las conexiones entre nodos (red local, túnel WireGuard).</li>
+    <li>La entrada externa (Internet → router → Traefik en Matrix).</li>
+    <li>El flujo de observabilidad (Sauron recopila métricas/logs de todos los nodos).</li>
+  </ul>
+  Herramientas válidas: <em>draw.io</em>, <em>Excalidraw</em>, <em>Mermaid</em> (<code>graph TD</code>). Numerarlo como <em>Ilustración 2 — Topología de SaaSphere</em>.
+</div>
+
+<h3>7.4. Falta el esquema de red <span class="badge b-alto">ALTO</span></h3>
+<div class="arquitectura-box">
+  <strong>Qué pasa:</strong> las IPs (192.168.1.99, 192.168.1.200, 192.168.1.210), la red privada de WireGuard y la exposición externa están sueltas en la Fase 1 de implementación, lejos de la sección de arquitectura. La arquitectura habla de conectividad sin mostrar IPs ni segmentos.
+</div>
+<div class="arquitectura-box fix-box">
+  <strong>Cómo arreglarlo:</strong> añadir un epígrafe <strong>3.4 Esquema de red</strong> con:
+  <ul>
+    <li>Diagrama de red (puede ir incluido en el diagrama 7.3 o ser independiente).</li>
+    <li>Tabla con interfaz, IP estática, máscara y rol de cada nodo.</li>
+    <li>Túneles WireGuard activos (red 10.x.x.x/24 interna VPN) y peers definidos.</li>
+    <li>Puertos expuestos al exterior (80, 443 a Traefik; UDP 51820 a WireGuard).</li>
+  </ul>
+</div>
+
+<h3>7.5. Se confunde «LeIA» (nodo) con «OpenClaw» (software) <span class="badge b-alto">ALTO</span></h3>
+<div class="arquitectura-box">
+  <strong>Qué pasa:</strong> la capa 6 de la estructura por capas dice: «<em>LeIA consulta métricas, analiza logs y ejecuta acciones correctivas de forma autónoma</em>». Esa es la descripción del <strong>agente OpenClaw</strong>, no del nodo LeIA. El nodo LeIA es <em>hardware</em>; OpenClaw es el <em>software</em> que se ejecuta sobre él. Igual ocurre en el funcionamiento normal y degradado: las frases que empiezan por «LeIA analiza…» deberían empezar por «OpenClaw…».
+</div>
+<div class="arquitectura-box fix-box">
+  <strong>Cómo arreglarlo:</strong> reservar «<strong>LeIA</strong>» exclusivamente para hablar del nodo físico (su CPU, su GPU, su SO) y «<strong>OpenClaw</strong>» para hablar de las acciones del agente. Plantilla: <em>«OpenClaw, ejecutándose sobre el nodo LeIA, consulta las métricas de Prometheus…»</em>. Una caja de nomenclatura al principio del documento (ver sección 2.5) evita esta confusión en todo el TFG.
+</div>
+
+<h3>7.6. La capa de seguridad y aprobaciones no aparece <span class="badge b-alto">ALTO</span></h3>
+<div class="arquitectura-box">
+  <strong>Qué pasa:</strong> la estructura por capas tiene 6 niveles (Física, Virtualización, Contenerización, Servicios del sistema, Servicios de cliente, Automatización e IA). <strong>No aparece como capa propia la política de seguridad, ni el RBAC de K3s, ni el sistema de aprobaciones por severidad</strong>, que son precisamente los elementos más diferenciales del proyecto.
+</div>
+<div class="arquitectura-box fix-box">
+  <strong>Cómo arreglarlo:</strong> añadir una <strong>capa 7 — Seguridad y control</strong> a la estructura, con tres componentes:
+  <ul>
+    <li><strong>Aislamiento por namespace</strong> (cada tenant en su propio espacio, etiquetado con <code>saasphere.io/tenant=true</code>).</li>
+    <li><strong>RBAC restringido</strong> para la cuenta de servicio de OpenClaw (solo permisos necesarios).</li>
+    <li><strong>Política de mutaciones y aprobaciones por severidad</strong> (AUTONOMOUS / NORMAL / CRITICAL), con Telegram como canal de aprobación.</li>
+  </ul>
+</div>
+
+<h3>7.7. Propuesta de reescritura (esqueleto listo para sustituir la sección actual)</h3>
+
+<details class="fix">
+  <summary>Estructura sugerida de la nueva sección «3. Arquitectura»</summary>
+  <div class="contenido">
+    <p>Reemplazar la sección actual por la siguiente estructura. Cada subapartado describe brevemente su contenido objetivo:</p>
+    <ol>
+      <li><strong>3.1 Visión general</strong>: 4–5 frases que respondan a «qué hay, cómo se distribuye, qué garantiza». Incluye al inicio el <em>diagrama de arquitectura</em> (Ilustración 2).</li>
+      <li><strong>3.2 Nodos físicos</strong>: tabla con LeIA, ESXi-host y Fallback (tipo, rol, CPU, RAM, GPU, SO).</li>
+      <li><strong>3.3 Nodos virtuales</strong>: tabla con Matrix, Sauron y Heimdall (SO, RAM, vCPU, disco, rol, servicios). Aclarar que se ejecutan sobre el ESXi-host.</li>
+      <li><strong>3.4 Esquema de red</strong>: diagrama o tabla con IPs estáticas, red local, túneles WireGuard, puertos expuestos al exterior.</li>
+      <li><strong>3.5 Estructura por capas</strong>: las 6 capas actuales <strong>+ la nueva capa 7 de Seguridad y control</strong>. Sustituir <em>Nginx</em> por <em>Traefik</em>.</li>
+      <li><strong>3.6 Modos de funcionamiento</strong>: integrar aquí los apartados «Funcionamiento normal», «Funcionamiento degradado» y «Prioridad de restauración» (hoy aparecen como sección 4 hermana, lo que rompe la jerarquía del índice). Sustituir todas las menciones a <em>Nginx</em> por <em>Traefik</em> y todas las menciones a <em>LeIA</em> como sujeto de acciones autónomas por <em>OpenClaw</em>.</li>
+    </ol>
+  </div>
+</details>
+
+<details class="fix">
+  <summary>Redacción propuesta para «3.1 Visión general» (lista para copiar)</summary>
+  <div class="contenido">
+    <p style="background:#fff; border:1px dashed #c5d8ee; padding:.7em .9em; border-radius:4px;">
+      <strong style="display:block; font-size:13pt; margin-bottom:.4em;">3.1 Visión general</strong>
+
+      <span style="display:block; margin-top:.4em;">La arquitectura de SaaSphere se construye sobre <strong>tres nodos físicos</strong> con roles claramente diferenciados, uno de los cuales actúa como hipervisor y aloja <strong>tres máquinas virtuales</strong> que asumen los roles operativos del clúster. El diseño persigue dos objetivos: que ningún servicio crítico dependa de un único punto de fallo y que la operación del sistema pueda automatizarse sin intervención humana constante.</span>
+
+      <span style="display:block; margin-top:.5em;">El nodo <strong>LeIA</strong> es un equipo dedicado a la inferencia local de modelos de lenguaje y a la ejecución del agente <strong>OpenClaw</strong>, que es el componente software responsable de razonar sobre el estado del clúster y de proponer o ejecutar acciones correctivas. El <strong>nodo ESXi</strong> actúa como hipervisor y aloja las tres máquinas virtuales del proyecto: <strong>Matrix</strong> (nodo principal del clúster K3s, con el proxy inverso Traefik y el registro privado de imágenes), <strong>Sauron</strong> (stack de observabilidad: Prometheus, Grafana, Loki, Promtail, Alertmanager y Blackbox) y <strong>Heimdall</strong> (pasarela VPN basada en WireGuard para el acceso administrativo remoto). El nodo <strong>Fallback</strong>, físicamente independiente, permanece en espera y se activa de forma automática cuando el nodo principal queda fuera de servicio.</span>
+
+      <span style="display:block; margin-top:.5em;">Sobre esta base de hardware se despliega un clúster de <strong>K3s</strong> distribuido, que orquesta la totalidad de los servicios en contenedores. Los tenants —es decir, las webs y aplicaciones de cada cliente— se aíslan en <em>namespaces</em> dedicados y se generan a partir de plantillas Jinja2. La exposición al exterior se realiza mediante Traefik con certificados TLS automatizados por Let's Encrypt. Toda la actividad mutadora del agente queda registrada en una base de datos local y, en función de su severidad, requiere aprobación humana previa a través de Telegram.</span>
+
+      <span style="display:block; margin-top:.5em;">En los apartados siguientes se detalla la composición de los nodos físicos (3.2) y virtuales (3.3), el esquema de red que los interconecta (3.4) y la estructura por capas del sistema (3.5). Los modos de funcionamiento normal y degradado se describen en el apartado 3.6.</span>
+    </p>
+    <p style="font-size:9.5pt; color:#555; margin-top:.5em;">
+      <strong>Notas</strong>: estilo impersonal, sin primera persona, sin metáforas. Aproximadamente media página en Calibri 11 pt. Va precedido del diagrama de arquitectura (Ilustración 2).
+    </p>
+  </div>
+</details>
+
+<hr>
+
+<h2>8. Propuesta de cambios concretos (orden de prioridad)</h2>
+
+<ol>
+  <li><span class="badge b-crit">CRÍTICO</span> <strong>Borrar todas las menciones a «Marcador no definido»</strong> y regenerar el índice tras corregir títulos y reinsertar las secciones que faltan.</li>
+  <li><span class="badge b-crit">CRÍTICO</span> <strong>Añadir la sección «Definición de Procedimientos de Control y Evaluación»</strong> (obligatoria por plantilla). 1–2 páginas: qué pasa cuando algo falla en el proyecto, cómo se gestionan cambios de alcance, cómo se evalúa el avance.</li>
+  <li><span class="badge b-crit">CRÍTICO</span> <strong>Glosario y caja de nomenclatura</strong> al principio del documento, antes de la introducción técnica. Define SaaSphere / LeIA / OpenClaw / tenant / namespace / mutación / caso de uso.</li>
+  <li><span class="badge b-crit">CRÍTICO</span> <strong>Diagrama de arquitectura</strong> (puedes hacerlo en Excalidraw / draw.io / Mermaid). Que muestre: 3 nodos físicos, 3 VMs, flechas de red, WireGuard, ingress externo.</li>
+  <li><span class="badge b-crit">CRÍTICO</span> <strong>Reformalizar la fase de pruebas</strong> usando exactamente la plantilla que la guía obliga: 10 casos de prueba con sus 7 campos.</li>
+  <li><span class="badge b-crit">CRÍTICO</span> <strong>Búsqueda y reemplazo de primera persona</strong> en todo el documento.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Resolver la contradicción</strong> «cinco nodos» / «tres nodos físicos» con una explicación única.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Sección de seguridad</strong> dedicada: política de mutaciones, RBAC, severidades, aprobaciones, namespaces protegidos. Es el aspecto más sólido de tu trabajo y casi no aparece.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Tabla del routing de modelos</strong> (CaseUse × modelo × think × motivo). Es uno de los puntos diferenciadores del proyecto.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Sección RGPD</strong> aunque sea de media página.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Anexos reales</strong>: ejemplo de manifiesto Jinja2 renderizado, listado de comandos Telegram, configuración WireGuard de ejemplo (claves anonimizadas), esquema de base de datos.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Fuentes ampliadas</strong> + eliminar <code>www.chatgpt.com</code>.</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Presupuesto del proyecto</strong> (lo que ha costado HACERLO, no lo que costará venderlo).</li>
+  <li><span class="badge b-alto">ALTO</span> <strong>Cronograma</strong> visual: una tabla Gantt simple con las 8 fases y el tiempo invertido. Lo tienes, solo hay que dibujarlo.</li>
+  <li><span class="badge b-med">MEDIO</span> <strong>Pies de figura</strong> en TODAS las capturas. Numéralas. Aliméntalas al «Índice de figuras».</li>
+  <li><span class="badge b-med">MEDIO</span> <strong>Corregir el pie de página</strong> roto (espacio entre <em>2025/26</em> y <em>página</em>).</li>
+  <li><span class="badge b-med">MEDIO</span> <strong>Quitar tono coloquial</strong> del «por qué este proyecto» y reformular como hipótesis de trabajo.</li>
+  <li><span class="badge b-baj">BAJO</span> Pasada ortográfica completa (tildes, mayúsculas erróneas).</li>
+  <li><span class="badge b-baj">BAJO</span> Unificar nomenclatura técnica (Ollama, Telegram, K3s, Traefik, OpenClaw).</li>
+</ol>
+
+<hr>
+
+<h2>9. Resumen del veredicto</h2>
+
+<table>
+  <thead>
+    <tr><th>Eje</th><th>Estado</th><th>Nota orientativa</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Trabajo técnico real ejecutado</td><td>Muy bueno</td><td>9 / 10</td></tr>
+    <tr><td>Cumplimiento de la plantilla obligatoria</td><td>Insuficiente</td><td>4 / 10</td></tr>
+    <tr><td>Claridad y comprensibilidad del documento</td><td>Insuficiente</td><td>4 / 10</td></tr>
+    <tr><td>Redacción y estilo</td><td>Mejorable</td><td>5 / 10</td></tr>
+    <tr><td>Documentación de pruebas</td><td>Insuficiente</td><td>3 / 10</td></tr>
+    <tr><td>Cobertura de secciones obligatorias</td><td>Incompleta</td><td>5 / 10</td></tr>
+    <tr><td>Anexos y fuentes</td><td>Pobre</td><td>3 / 10</td></tr>
+  </tbody>
+</table>
+
+<p>El proyecto que hay detrás del PDF es notable y tiene elementos originales (agente local sobre Qwen3, sistema de políticas y aprobaciones, plantillas Jinja2 para tenants, integración Telegram). La memoria que entregas <strong>no le hace justicia</strong>. Con dos a tres días enfocados en los puntos críticos de arriba (1 a 6 de la lista del apartado 7) el TFG puede pasar de «se intuye lo que hizo» a «se entiende y se valora lo que hizo».</p>
+
+<hr>
+
+<h2>10. Anexo: glosario propuesto para insertar en el TFG</h2>
+
+<p>Lo que sigue es el glosario formal recomendado en el punto 3 de la sección 7. Está redactado en estilo impersonal conforme a la guía de estilo de la plantilla y agrupado por bloques temáticos. Ubicación sugerida: <strong>justo después del «Índice de figuras» y antes de la «Introducción»</strong>. De esta forma, el lector llega al cuerpo técnico ya equipado con el vocabulario necesario.</p>
+
+<h3>10.1. Nomenclatura del proyecto</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>SaaSphere</strong></td><td>Nombre de la empresa ficticia y de la plataforma global objeto del proyecto. Engloba la infraestructura física, los servicios desplegados y el modelo comercial de suscripción mensual ofrecido a los clientes.</td></tr>
+    <tr><td><strong>LeIA</strong></td><td>Nodo físico dedicado a la inteligencia artificial. Aloja el agente OpenClaw y los modelos de lenguaje locales servidos a través de Ollama. Cuenta con GPU dedicada para acelerar la inferencia.</td></tr>
+    <tr><td><strong>OpenClaw</strong></td><td>Aplicación Python que implementa el agente de inteligencia artificial encargado de observar el clúster, razonar sobre su estado y ejecutar acciones acotadas. Es el software que se ejecuta dentro del nodo LeIA.</td></tr>
+    <tr><td><strong>Matrix</strong></td><td>Máquina virtual que actúa como nodo principal del clúster K3s. Centraliza el orquestador, el proxy inverso Traefik y el registro privado de imágenes.</td></tr>
+    <tr><td><strong>Sauron</strong></td><td>Máquina virtual dedicada a la monitorización. Aloja el stack Prometheus, Grafana, Loki, Alertmanager, Blackbox y Promtail.</td></tr>
+    <tr><td><strong>Heimdall</strong></td><td>Máquina virtual que ofrece acceso remoto seguro mediante una pasarela VPN basada en WireGuard.</td></tr>
+    <tr><td><strong>Fallback</strong></td><td>Nodo físico de respaldo, en espera durante el funcionamiento normal del sistema. Su activación se produce cuando el nodo principal queda fuera de servicio o supera los umbrales de carga definidos.</td></tr>
+  </tbody>
+</table>
+
+<h3>10.2. Conceptos del agente OpenClaw</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Caso de uso (CaseUse)</strong></td><td>Modo de operación con el que se invoca al agente. Cada caso de uso determina el modelo de lenguaje empleado, el conjunto de herramientas disponibles y la severidad por defecto de las acciones. Ejemplos: <em>chat</em>, <em>análisis profundo</em>, <em>health loop</em>, <em>resumen diario</em>.</td></tr>
+    <tr><td><strong>Herramienta (tool)</strong></td><td>Función registrada que el agente puede invocar de forma controlada para interactuar con el sistema. Se clasifican en herramientas de lectura (consulta de métricas, logs o estado) y de mutación (modificación del clúster).</td></tr>
+    <tr><td><strong>Mutación</strong></td><td>Toda acción que modifica el estado de la infraestructura: despliegue, eliminación, pausa o reanudación de un servicio, reinicio de un pod, escalado, etc. Se diferencian de las acciones de lectura, que no alteran el sistema.</td></tr>
+    <tr><td><strong>Severidad</strong></td><td>Clasificación de cada mutación en uno de tres niveles: <strong>AUTONOMOUS</strong> (puede ejecutarse sin intervención humana), <strong>NORMAL</strong> (requiere aprobación humana) y <strong>CRITICAL</strong> (requiere aprobación humana, con recordatorios periódicos y mayor tiempo de espera).</td></tr>
+    <tr><td><strong>Aprobación</strong></td><td>Mecanismo de control humano previo a la ejecución de las mutaciones de severidad NORMAL o CRITICAL. Se solicita al operador a través de Telegram y se confirma o rechaza mediante botones en línea.</td></tr>
+    <tr><td><strong>Política (policy)</strong></td><td>Conjunto de reglas que se evalúan antes de toda mutación. Bloquea acciones sobre namespaces de sistema, manifiestos con recursos prohibidos y operaciones fuera del ámbito autorizado del agente.</td></tr>
+    <tr><td><strong>Modo del agente</strong></td><td>Estado global de OpenClaw. Toma uno de los tres valores siguientes: <strong>normal</strong> (operación habitual), <strong>dry_run</strong> (las mutaciones se simulan pero no se ejecutan) y <strong>paused</strong> (el agente no responde a ninguna entrada).</td></tr>
+    <tr><td><strong>Ledger / registro de acciones</strong></td><td>Tabla persistente que almacena cada acción intentada o ejecutada por el agente, junto con su resultado, su severidad y la decisión de aprobación correspondiente. Proporciona trazabilidad completa.</td></tr>
+    <tr><td><strong>Health loop</strong></td><td>Tarea periódica de comprobación del estado del clúster. Si detecta una anomalía, escala a un análisis profundo de forma autónoma.</td></tr>
+    <tr><td><strong>Watcher</strong></td><td>Proceso que escucha eventos de Kubernetes en tiempo real y reacciona ante incidencias sin esperar al siguiente ciclo programado.</td></tr>
+    <tr><td><strong>Scheduler</strong></td><td>Componente que ejecuta las tareas programadas del agente: comprobaciones periódicas, resúmenes, verificación de copias de seguridad y optimización de pods.</td></tr>
+  </tbody>
+</table>
+
+<h3>10.3. Modelos de lenguaje e inferencia</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>LLM</strong></td><td>Acrónimo de <em>Large Language Model</em>. Modelo estadístico entrenado sobre grandes volúmenes de texto, capaz de generar respuestas en lenguaje natural y de invocar herramientas externas mediante el patrón conocido como <em>function calling</em>.</td></tr>
+    <tr><td><strong>Ollama</strong></td><td>Servicio local que permite ejecutar modelos de lenguaje sobre el hardware del propio usuario y exponerlos mediante una API compatible con la de OpenAI. Evita la dependencia de proveedores externos.</td></tr>
+    <tr><td><strong>Qwen3</strong></td><td>Familia de modelos de lenguaje empleada en el proyecto. Se utilizan dos variantes en local: <code>qwen3:8b</code>, más rápida y orientada a tareas de lectura, y <code>qwen3:32b</code>, más lenta pero con mayor capacidad de razonamiento, usada en mutaciones y análisis profundo.</td></tr>
+    <tr><td><strong>Modo think</strong></td><td>Extensión de Qwen3 que reserva una fase de razonamiento explícito antes de emitir la respuesta final. Mejora la calidad del análisis a costa de un mayor tiempo de inferencia. Se activa en los casos de uso que requieren decisiones complejas.</td></tr>
+    <tr><td><strong>Pydantic AI</strong></td><td>Biblioteca de Python que estructura la comunicación entre la aplicación y el modelo de lenguaje, garantizando que las entradas y salidas se ajusten a esquemas tipados.</td></tr>
+    <tr><td><strong>VRAM</strong></td><td>Memoria dedicada de la tarjeta gráfica. Determina el tamaño máximo de modelo que puede cargarse íntegramente en la GPU. Los modelos que no caben se reparten entre VRAM y memoria del sistema, con la consiguiente penalización de rendimiento.</td></tr>
+    <tr><td><strong>Alucinación</strong></td><td>Fenómeno por el cual un modelo de lenguaje genera una respuesta plausible pero incorrecta o inventada. Justifica la necesidad de validaciones externas y de aprobaciones humanas sobre las acciones críticas.</td></tr>
+  </tbody>
+</table>
+
+<h3>10.4. Orquestación y contenedores</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Contenedor</strong></td><td>Unidad de software autocontenida que empaqueta una aplicación junto con sus dependencias y se ejecuta de forma aislada sobre un núcleo Linux compartido.</td></tr>
+    <tr><td><strong>Docker</strong></td><td>Plataforma estándar para construir y ejecutar contenedores. En este proyecto se emplea como base de las imágenes desplegadas.</td></tr>
+    <tr><td><strong>Kubernetes</strong></td><td>Orquestador de contenedores que automatiza el despliegue, escalado y mantenimiento de aplicaciones distribuidas.</td></tr>
+    <tr><td><strong>K3s</strong></td><td>Distribución ligera y certificada de Kubernetes diseñada para entornos con recursos limitados. Conserva la compatibilidad con los manifiestos y herramientas estándar del ecosistema.</td></tr>
+    <tr><td><strong>Clúster</strong></td><td>Conjunto de nodos coordinados por Kubernetes para ejecutar y gestionar contenedores de forma unificada.</td></tr>
+    <tr><td><strong>Nodo</strong></td><td>Máquina, física o virtual, que forma parte del clúster y aporta sus recursos para la ejecución de cargas de trabajo.</td></tr>
+    <tr><td><strong>Pod</strong></td><td>Unidad mínima de ejecución en Kubernetes. Agrupa uno o varios contenedores que comparten red y almacenamiento.</td></tr>
+    <tr><td><strong>Deployment</strong></td><td>Recurso que describe el estado deseado de una aplicación: número de réplicas, imagen, recursos y estrategia de actualización.</td></tr>
+    <tr><td><strong>Namespace</strong></td><td>Mecanismo de separación lógica dentro del clúster. Cada cliente del proyecto se aísla en su propio namespace para evitar interferencias y simplificar la administración.</td></tr>
+    <tr><td><strong>Tenant</strong></td><td>Cliente o instancia desplegada en la plataforma. En el proyecto, cada tenant corresponde a un namespace etiquetado con <code>saasphere.io/tenant=true</code> y a un conjunto de recursos generados a partir de plantillas. Es el concepto central del modelo multitenant.</td></tr>
+    <tr><td><strong>Multitenant</strong></td><td>Arquitectura en la que una misma infraestructura presta servicio a múltiples clientes manteniendo el aislamiento entre ellos.</td></tr>
+    <tr><td><strong>Manifiesto</strong></td><td>Fichero declarativo en formato YAML que describe los recursos de Kubernetes a crear. En el proyecto se generan dinámicamente a partir de plantillas Jinja2.</td></tr>
+    <tr><td><strong>Ingress</strong></td><td>Recurso de Kubernetes que define las reglas de entrada del tráfico HTTP/HTTPS al clúster, asociando dominios y rutas con los servicios internos.</td></tr>
+    <tr><td><strong>Traefik</strong></td><td>Proxy inverso integrado en K3s. Enruta las peticiones externas al pod correspondiente según el dominio del cliente y gestiona los certificados TLS de forma automática.</td></tr>
+    <tr><td><strong>Let's Encrypt / ACME</strong></td><td>Autoridad certificadora gratuita y protocolo asociado para la emisión y renovación automatizada de certificados TLS. Garantiza el cifrado HTTPS de todos los servicios expuestos.</td></tr>
+    <tr><td><strong>Registry privado</strong></td><td>Repositorio interno de imágenes de contenedor, accesible únicamente desde la red local del proyecto. Permite distribuir imágenes propias sin depender de servicios externos.</td></tr>
+    <tr><td><strong>Taint <code>NoSchedule</code></strong></td><td>Marca aplicada a un nodo que impide que Kubernetes le asigne nuevos pods salvo que estos toleren expresamente la marca. Se utiliza en el nodo Fallback para reservarlo a situaciones excepcionales.</td></tr>
+    <tr><td><strong>RBAC</strong></td><td>Acrónimo de <em>Role-Based Access Control</em>. Sistema de control de acceso de Kubernetes basado en roles. Permite limitar las acciones que cada cuenta puede ejecutar sobre el clúster. La cuenta de OpenClaw dispone únicamente de los permisos imprescindibles para su operativa.</td></tr>
+    <tr><td><strong>Plantilla Jinja2</strong></td><td>Plantilla de texto parametrizada que, al combinarse con un conjunto de variables, genera un manifiesto YAML listo para aplicar. En este proyecto se emplean para los tres tipos de tenant soportados.</td></tr>
+  </tbody>
+</table>
+
+<h3>10.5. Observabilidad y alertas</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Observabilidad</strong></td><td>Capacidad de un sistema para exponer información suficiente (métricas, registros y trazas) que permita inferir su estado interno a partir de su comportamiento externo.</td></tr>
+    <tr><td><strong>Métrica</strong></td><td>Valor numérico medido a intervalos regulares que refleja un aspecto del sistema (uso de CPU, memoria, número de peticiones, etc.).</td></tr>
+    <tr><td><strong>Prometheus</strong></td><td>Sistema de monitorización basado en la recolección periódica de métricas mediante consultas HTTP a los puntos de exposición de cada servicio.</td></tr>
+    <tr><td><strong>Grafana</strong></td><td>Plataforma de visualización que representa las métricas almacenadas en Prometheus y otras fuentes mediante paneles personalizables.</td></tr>
+    <tr><td><strong>Loki</strong></td><td>Sistema de agregación y consulta de registros (logs), diseñado para integrarse con Grafana de forma análoga a Prometheus pero aplicado a texto.</td></tr>
+    <tr><td><strong>Promtail</strong></td><td>Agente que recolecta los logs locales de cada nodo y los envía a Loki.</td></tr>
+    <tr><td><strong>Blackbox exporter</strong></td><td>Componente de Prometheus que prueba la disponibilidad de servicios externos mediante sondas HTTP, TCP o ICMP.</td></tr>
+    <tr><td><strong>Alertmanager</strong></td><td>Servicio asociado a Prometheus que recibe las alertas generadas por las reglas configuradas y las distribuye a los destinos correspondientes (Telegram, webhook hacia OpenClaw, etc.).</td></tr>
+    <tr><td><strong>Webhook</strong></td><td>Endpoint HTTP expuesto por una aplicación que recibe notificaciones automáticas desde otro sistema. En el proyecto, OpenClaw expone un webhook al que Alertmanager envía las alertas para su análisis.</td></tr>
+    <tr><td><strong>Dashboard</strong></td><td>Panel visual en Grafana que agrupa varias métricas o registros con el fin de evaluar el estado del sistema de un vistazo.</td></tr>
+    <tr><td><strong>Node exporter</strong></td><td>Agente que expone las métricas del sistema operativo (CPU, memoria, disco, red) para que Prometheus las consulte.</td></tr>
+    <tr><td><strong>Kube-state-metrics</strong></td><td>Componente que expone métricas sobre el estado de los recursos de Kubernetes (pods, deployments, nodos) para su consumo desde Prometheus.</td></tr>
+  </tbody>
+</table>
+
+<h3>10.6. Red y seguridad</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>VPN</strong></td><td>Acrónimo de <em>Virtual Private Network</em>. Red virtual que cifra el tráfico entre dispositivos remotos y la infraestructura interna, ofreciendo acceso seguro desde el exterior.</td></tr>
+    <tr><td><strong>WireGuard</strong></td><td>Implementación moderna de VPN, basada en criptografía simétrica y con una configuración más sencilla que las soluciones tradicionales. Se emplea en el nodo Heimdall para el acceso administrativo remoto.</td></tr>
+    <tr><td><strong>TLS / HTTPS</strong></td><td>Protocolos que cifran las comunicaciones entre cliente y servidor. En el proyecto se aplican a todos los servicios expuestos al exterior mediante certificados emitidos por Let's Encrypt.</td></tr>
+    <tr><td><strong>Fail2ban</strong></td><td>Servicio que analiza los registros del sistema y bloquea de forma automática las direcciones IP que muestran patrones de ataque, como intentos repetidos de inicio de sesión.</td></tr>
+    <tr><td><strong>UFW</strong></td><td>Acrónimo de <em>Uncomplicated Firewall</em>. Frontal simplificado para la configuración del cortafuegos del sistema operativo.</td></tr>
+    <tr><td><strong>auditd</strong></td><td>Subsistema de auditoría del núcleo Linux. Registra las llamadas al sistema relevantes para el análisis posterior de actividad sospechosa.</td></tr>
+    <tr><td><strong>Hardening</strong></td><td>Proceso de reforzar la seguridad de un sistema mediante la desactivación de servicios innecesarios, la aplicación de actualizaciones, el endurecimiento de la configuración y la implantación de mecanismos de auditoría.</td></tr>
+  </tbody>
+</table>
+
+<h3>10.7. Modelo de servicio y conceptos generales</h3>
+<table>
+  <thead><tr><th style="width:22%">Término</th><th>Definición</th></tr></thead>
+  <tbody>
+    <tr><td><strong>SaaS</strong></td><td>Acrónimo de <em>Software as a Service</em>. Modelo de distribución de software en el que la aplicación se aloja y mantiene en la infraestructura del proveedor, y el cliente accede a ella mediante una suscripción.</td></tr>
+    <tr><td><strong>CMS</strong></td><td>Acrónimo de <em>Content Management System</em>. Aplicación que permite al cliente gestionar el contenido de su web sin intervención técnica directa. WordPress es un ejemplo característico.</td></tr>
+    <tr><td><strong>Landing page</strong></td><td>Página web única, estática y orientada a un objetivo concreto, normalmente la presentación del cliente o la captación de contactos.</td></tr>
+    <tr><td><strong>Snapshot</strong></td><td>Captura del estado completo de una máquina o sistema en un instante determinado. Permite restaurar dicho estado en caso de fallo.</td></tr>
+    <tr><td><strong>Hipervisor</strong></td><td>Capa de software que permite ejecutar varias máquinas virtuales sobre un mismo hardware físico. En el proyecto se emplea VMware ESXi.</td></tr>
+    <tr><td><strong>VMware ESXi</strong></td><td>Hipervisor de tipo 1, instalado directamente sobre el hardware sin necesidad de un sistema operativo anfitrión. Aloja las tres máquinas virtuales del proyecto (Heimdall, Sauron y Matrix).</td></tr>
+    <tr><td><strong>Dry-run</strong></td><td>Ejecución simulada de una operación. Se realizan todas las validaciones y se produce el resultado teórico, sin aplicar cambios reales sobre el sistema.</td></tr>
+    <tr><td><strong>SQLite</strong></td><td>Motor de base de datos relacional ligero, embebido y sin servidor. Almacena toda la información persistente del agente OpenClaw.</td></tr>
+    <tr><td><strong>SQLModel</strong></td><td>Biblioteca de Python que combina las funcionalidades de Pydantic y SQLAlchemy para definir modelos de datos tipados que se traducen automáticamente a tablas SQL.</td></tr>
+    <tr><td><strong>aiogram</strong></td><td>Biblioteca asíncrona de Python para la creación de bots de Telegram. Gestiona los comandos del operador y los botones de aprobación en línea.</td></tr>
+    <tr><td><strong>FastAPI</strong></td><td>Marco de desarrollo web en Python orientado a APIs de alto rendimiento. Expone los puntos de acceso HTTP del agente, entre ellos <code>/health</code>, <code>/metrics</code> y el webhook de Alertmanager.</td></tr>
+  </tbody>
+</table>
+
+<p class="pie">Revisión generada el 17/05/2026 — Documento de trabajo, no entrega oficial.</p>
+
+</body>
+</html>
