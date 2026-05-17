@@ -1,0 +1,144 @@
+groups:
+  - name: openclaw
+    interval: 60s
+    rules:
+
+      # Prometheus no puede hacer scrape del proceso
+      - alert: OpenClawSinActividad
+        expr: up{job="openclaw"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          team: ops
+        annotations:
+          summary: "OpenClaw caido (LeIA :8080 sin responder)"
+          description: >
+            El scrape job de Prometheus no obtiene respuesta de leia:8080/metrics.
+            El proceso puede estar caído o el puerto bloqueado.
+          runbook: "ssh leia 'systemctl status openclaw && journalctl -u openclaw -n 50'"
+
+      # Health loop no actualiza su timestamp (proceso vivo pero bloqueado)
+      - alert: OpenClawDecisionesEstancadas
+        expr: time() - max(openclaw_last_cycle_timestamp{case_use="health_loop_read"}) > 900
+        for: 2m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Health loop sin ejecutar hace >15 min"
+          description: >
+            openclaw_last_cycle_timestamp{case_use="health_loop_read"} lleva más de 15
+            minutos sin actualizarse. El proceso puede estar bloqueado en una llamada LLM
+            o el scheduler no está corriendo.
+          runbook: "Revisar logs en Grafana/Loki: {service=\"openclaw\"} |= \"scheduler\""
+
+      # Ratio de decisiones fallidas alto (lógica del agente)
+      - alert: OpenClawDecisionesFallidas
+        expr: |
+          (
+            sum(rate(openclaw_decisions_total{outcome="failed"}[15m])) /
+            sum(rate(openclaw_decisions_total[15m]))
+          ) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: ">20% de decisiones fallando en 15 min"
+          description: >
+            La ratio outcome=failed supera el 20% durante 10 minutos consecutivos.
+            Puede indicar alucinaciones del LLM, prompts malformados o errores en tools.
+          runbook: "openclaw decisions list --limit 20"
+
+      # Tasa de excepciones inesperadas en componentes internos
+      - alert: OpenClawTasaErroresAlta
+        expr: sum(rate(openclaw_errors_total{severity="error"}[5m])) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Tasa de errores internos elevada (>0.05/s)"
+          description: >
+            openclaw_errors_total{severity="error"} supera 0.05 errores/segundo durante
+            más de 3 minutos. Indica excepciones no controladas en agent, scheduler
+            o k8s_watcher.
+          runbook: "Filtrar en Loki: {service=\"openclaw\"} |= \"exception\""
+
+      # Latencia p95 del LLM — umbral adaptado a qwen3:32b (puede tardar minutos)
+      - alert: OpenClawLatenciaLLMAlta
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le, model)(rate(openclaw_llm_latency_seconds_bucket[10m]))
+          ) > 300
+        for: 10m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "P95 latencia LLM > 5 min"
+          description: >
+            El percentil 95 de openclaw_llm_latency_seconds supera los 300 segundos
+            durante más de 10 minutos. El modelo puede estar saturado o Ollama bajo
+            presión de recursos GPU/CPU.
+          runbook: "Revisar carga en LeIA: nvidia-smi y htop"
+
+      # Aprobaciones acumuladas sin resolver
+      - alert: OpenClawAprobacionesAcumuladas
+        expr: openclaw_approvals_pending > 5
+        for: 30m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Hay >5 aprobaciones pendientes desde hace 30 min"
+          description: >
+            openclaw_approvals_pending lleva más de 30 minutos con más de 5 aprobaciones
+            pendientes. Las acciones del agente están bloqueadas esperando confirmación
+            humana.
+          runbook: "openclaw approvals list"
+
+      # Jobs del scheduler fallando continuamente
+      - alert: OpenClawSchedulerFallando
+        expr: sum(rate(openclaw_scheduler_runs_total{outcome=~"failed|exception"}[15m])) > 0
+        for: 10m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Scheduler con jobs fallando en los últimos 15 min"
+          description: >
+            openclaw_scheduler_runs_total con outcome=failed o exception tiene actividad
+            durante más de 10 minutos. Algún job programado está fallando de forma
+            sistemática.
+          runbook: "Revisar logs: {service=\"openclaw\"} |= \"scheduler.job.exception\""
+
+      # Cola de Loki casi llena (riesgo de pérdida de logs)
+      - alert: OpenClawLokiQueueLlena
+        expr: openclaw_loki_queue_size > 800
+        for: 5m
+        labels:
+          severity: warning
+          team: ops
+        annotations:
+          summary: "Cola push Loki >80% llena (riesgo pérdida de logs)"
+          description: >
+            openclaw_loki_queue_size supera 800 de 1000 entradas máximas. Si la cola
+            se llena completamente, los logs nuevos se descartan silenciosamente.
+            Comprobar conectividad con Loki en Sauron.
+          runbook: "curl -s http://sauron:3100/ready"
+
+      # Proceso reiniciado recientemente
+      - alert: OpenClawRestart
+        expr: openclaw_uptime_seconds < 120
+        for: 0m
+        labels:
+          severity: info
+          team: ops
+        annotations:
+          summary: "OpenClaw se ha reiniciado (uptime {{ $value | humanizeDuration }})"
+          description: >
+            openclaw_uptime_seconds es menor de 2 minutos, indicando un reinicio reciente.
+            Normal si fue manual; revisar si fue inesperado.
+          runbook: "journalctl -u openclaw --since '10 minutes ago'"

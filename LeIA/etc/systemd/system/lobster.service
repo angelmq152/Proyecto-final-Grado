@@ -1,0 +1,32 @@
+[Unit]
+Description=Lobster - SaaSphere AI Orchestrator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=openclaw
+Group=openclaw
+WorkingDirectory=/opt/openclaw
+EnvironmentFile=/etc/lobster/.env
+ExecStart=/opt/openclaw/.venv/bin/python -m lobster_agent
+
+Restart=on-failure
+RestartSec=10s
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/lobster /var/log/lobster /opt/openclaw/obsidian
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lobster
+
+[Install]
+WantedBy=multi-user.target

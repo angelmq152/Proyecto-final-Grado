@@ -1,0 +1,467 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-05-14T00:22:52Z"
+    generateName: prueba-tfg-676895d55-
+    generation: 1
+    labels:
+      app: prueba-tfg
+      pod-template-hash: 676895d55
+    name: prueba-tfg-676895d55-qvcqs
+    namespace: prueba-tfg
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: prueba-tfg-676895d55
+      uid: 51daddc3-7d4c-454c-896a-ba47ff875a71
+    resourceVersion: "284069"
+    uid: c4fa9b96-6ae3-4798-ab54-2b65d40c17e0
+  spec:
+    containers:
+    - image: nginx:alpine
+      imagePullPolicy: IfNotPresent
+      name: nginx
+      ports:
+      - containerPort: 80
+        protocol: TCP
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /usr/share/nginx/html
+        name: html
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zs4nz
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: matrix
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: html
+      persistentVolumeClaim:
+        claimName: prueba-tfg-html
+    - name: kube-api-access-zs4nz
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-14T00:23:00Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-14T00:22:57Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-14T00:23:00Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-14T00:23:00Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-14T00:22:57Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 50m
+        memory: 64Mi
+      containerID: containerd://30b97525d08a50fb7c8a98332d4adb5aa04e7a1083f6d8341dca0835db33ea0d
+      image: docker.io/library/nginx:alpine
+      imageID: docker.io/library/nginx@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
+      lastState: {}
+      name: nginx
+      ready: true
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-05-14T00:22:59Z"
+      user:
+        linux:
+          gid: 0
+          supplementalGroups:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 6
+          - 10
+          - 11
+          - 20
+          - 26
+          - 27
+          uid: 0
+      volumeMounts:
+      - mountPath: /usr/share/nginx/html
+        name: html
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zs4nz
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.1.202
+    hostIPs:
+    - ip: 192.168.1.202
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.0.26
+    podIPs:
+    - ip: 10.42.0.26
+    qosClass: Burstable
+    startTime: "2026-05-14T00:22:57Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2026-05-14T00:22:52Z"
+    name: prueba-tfg
+    namespace: prueba-tfg
+    resourceVersion: "284026"
+    uid: d2776451-8063-4762-bcf7-569503077018
+  spec:
+    clusterIP: 10.43.126.211
+    clusterIPs:
+    - 10.43.126.211
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: prueba-tfg
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "3"
+    creationTimestamp: "2026-05-14T00:22:52Z"
+    generation: 3
+    name: prueba-tfg
+    namespace: prueba-tfg
+    resourceVersion: "346925"
+    uid: 3b078f54-f133-4eb0-9d66-496b332e5b53
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: prueba-tfg
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        labels:
+          app: prueba-tfg
+      spec:
+        containers:
+        - image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: html
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: html
+          persistentVolumeClaim:
+            claimName: prueba-tfg-html
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-05-14T00:23:00Z"
+      lastUpdateTime: "2026-05-14T00:23:00Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-05-14T00:22:52Z"
+      lastUpdateTime: "2026-05-15T19:34:17Z"
+      message: ReplicaSet "prueba-tfg-676895d55" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 3
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "2"
+    creationTimestamp: "2026-05-15T19:32:17Z"
+    generation: 2
+    labels:
+      app: prueba-tfg
+      pod-template-hash: 54df79fd7b
+    name: prueba-tfg-54df79fd7b
+    namespace: prueba-tfg
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: prueba-tfg
+      uid: 3b078f54-f133-4eb0-9d66-496b332e5b53
+    resourceVersion: "346923"
+    uid: b65b7c5d-60ec-473a-a51b-973f02281faa
+  spec:
+    replicas: 0
+    selector:
+      matchLabels:
+        app: prueba-tfg
+        pod-template-hash: 54df79fd7b
+    template:
+      metadata:
+        labels:
+          app: prueba-tfg
+          pod-template-hash: 54df79fd7b
+      spec:
+        containers:
+        - image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: html
+        dnsPolicy: ClusterFirst
+        nodeSelector:
+          kubernetes.io/hostname: fallback
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: html
+          persistentVolumeClaim:
+            claimName: prueba-tfg-html
+  status:
+    observedGeneration: 2
+    replicas: 0
+    terminatingReplicas: 0
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "3"
+      deployment.kubernetes.io/revision-history: "1"
+    creationTimestamp: "2026-05-14T00:22:52Z"
+    generation: 1
+    labels:
+      app: prueba-tfg
+      pod-template-hash: 676895d55
+    name: prueba-tfg-676895d55
+    namespace: prueba-tfg
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: prueba-tfg
+      uid: 3b078f54-f133-4eb0-9d66-496b332e5b53
+    resourceVersion: "346919"
+    uid: 51daddc3-7d4c-454c-896a-ba47ff875a71
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: prueba-tfg
+        pod-template-hash: 676895d55
+    template:
+      metadata:
+        labels:
+          app: prueba-tfg
+          pod-template-hash: 676895d55
+      spec:
+        containers:
+        - image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: html
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: html
+          persistentVolumeClaim:
+            claimName: prueba-tfg-html
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    creationTimestamp: "2026-05-14T00:22:52Z"
+    generation: 1
+    name: prueba-tfg
+    namespace: prueba-tfg
+    resourceVersion: "284034"
+    uid: 6323f6f6-17d4-4531-96d1-38afb75b9560
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: prueba-tfg.saasphere.local
+      http:
+        paths:
+        - backend:
+            service:
+              name: prueba-tfg
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 192.168.1.240
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBdzCCAR2gAwIBAgIBADAKBggqhkjOPQQDAjAjMSEwHwYDVQQDDBhrM3Mtc2Vy
+      dmVyLWNhQDE3NzgwMTk2NjMwHhcNMjYwNTA1MjEyMTAzWhcNMzYwNTAyMjEyMTAz
+      WjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3NzgwMTk2NjMwWTATBgcqhkjO
+      PQIBBggqhkjOPQMBBwNCAATFlkYACsCkxyZsNXYLuX+C/tbJCCjpG4H6K2yq4Jbd
+      4u7MwRyeyWiwG9uyNIa2PsZWQBS9cWl/8c2xxSArjdg2o0IwQDAOBgNVHQ8BAf8E
+      BAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU7W5+EF4jt49qBd5HTTyE
+      fiQ3Wy4wCgYIKoZIzj0EAwIDSAAwRQIgcDDkVKanpct87I/d+BdBrObjmoTVTTCb
+      8YB8TH7d9GACIQDw6CnwnzsEcE2pjaHjutkNHuEOcJNSMgDReYX9UX+o7g==
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-05-14T00:22:52Z"
+    name: kube-root-ca.crt
+    namespace: prueba-tfg
+    resourceVersion: "284018"
+    uid: 5a739d6e-d304-4d17-aff4-5955109c87e5
+kind: List
+metadata:
+  resourceVersion: ""

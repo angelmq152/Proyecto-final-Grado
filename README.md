@@ -13,9 +13,14 @@ Cada nodo es una máquina física/virtual del homelab. Su carpeta replica el fil
 | [`Sauron/`](./Sauron) | Observabilidad | Prometheus, Grafana, Loki, Alertmanager |
 | [`Heimdall/`](./Heimdall) | Gateway / VPN | WireGuard + node exporters (planificado) |
 
+## Cargas de trabajo
+
+- [`tenants/`](./tenants) — Aplicaciones de los inquilinos (tenants) que el agente despliega y gestiona en K3s. Primer tenant: [`tenants/saasphere/`](./tenants/saasphere) — landing estática del propio proyecto.
+
 ## Documentación del TFG
 
 - [`docs/memoria/`](./docs/memoria) — Memoria oficial (.docx, PDF) y plantilla del centro.
+- [`docs/infra/topologia.md`](./docs/infra/topologia.md) — **Topología del homelab**: tabla de nodos, IPs, roles, diagrama ASCII de la LAN y política de secretos.
 - [`docs/Glosario_TFG.html`](./docs/Glosario_TFG.html), [`docs/Revision_TFG_AngelMartinQuero.html`](./docs/Revision_TFG_AngelMartinQuero.html) — Material auxiliar.
 - [`docs/versiones-anteriores/`](./docs/versiones-anteriores) — Borradores y backups del documento.
 - [`obsidian/`](./obsidian) — Wiki técnica viva del proyecto (vault Obsidian).

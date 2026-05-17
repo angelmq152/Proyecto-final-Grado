@@ -1,0 +1,16 @@
+environment = "prod"
+log_level = "INFO"
+
+[loki]
+url = "http://192.168.1.201:3100"
+push_path = "/loki/api/v1/push"
+batch_size = 100
+flush_interval_seconds = 5
+
+[http]
+host = "0.0.0.0"
+port = 8080
+
+[scheduler]
+daily_summary_hour = 0
+daily_summary_minute = 15

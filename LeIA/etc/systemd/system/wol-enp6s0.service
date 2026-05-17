@@ -1,0 +1,12 @@
+[Unit]
+Description=Enable Wake-on-LAN on enp6s0
+After=sys-subsystem-net-devices-enp6s0.device
+Requires=sys-subsystem-net-devices-enp6s0.device
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/ethtool -s enp6s0 wol g
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

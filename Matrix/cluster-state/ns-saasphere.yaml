@@ -1,0 +1,397 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-05-16T17:05:51Z"
+    generateName: saasphere-58ddf785bc-
+    generation: 1
+    labels:
+      app: saasphere
+      pod-template-hash: 58ddf785bc
+    name: saasphere-58ddf785bc-c9zvv
+    namespace: saasphere
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: saasphere-58ddf785bc
+      uid: c2e251c9-9a54-415d-8c93-3d21e9a10bfc
+    resourceVersion: "378443"
+    uid: 4c777d8c-bfde-4a99-a0a8-dbe44b32b743
+  spec:
+    containers:
+    - image: nginx:alpine
+      imagePullPolicy: IfNotPresent
+      name: nginx
+      ports:
+      - containerPort: 80
+        protocol: TCP
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /usr/share/nginx/html
+        name: html
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-rkmw8
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: matrix
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: html
+      persistentVolumeClaim:
+        claimName: saasphere-html
+    - name: kube-api-access-rkmw8
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-16T17:05:59Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-16T17:05:56Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-16T17:05:59Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-16T17:05:59Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-16T17:05:56Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - allocatedResources:
+        cpu: 50m
+        memory: 64Mi
+      containerID: containerd://07c5aa720cb54d86b0f534d92803ef3d605bdcf20c7025285e1ccf64cd1ca14e
+      image: docker.io/library/nginx:alpine
+      imageID: docker.io/library/nginx@sha256:5616878291a2eed594aee8db4dade5878cf7edcb475e59193904b198d9b830de
+      lastState: {}
+      name: nginx
+      ready: true
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
+      restartCount: 0
+      started: true
+      state:
+        running:
+          startedAt: "2026-05-16T17:05:58Z"
+      user:
+        linux:
+          gid: 0
+          supplementalGroups:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 6
+          - 10
+          - 11
+          - 20
+          - 26
+          - 27
+          uid: 0
+      volumeMounts:
+      - mountPath: /usr/share/nginx/html
+        name: html
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-rkmw8
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.1.202
+    hostIPs:
+    - ip: 192.168.1.202
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.0.31
+    podIPs:
+    - ip: 10.42.0.31
+    qosClass: Burstable
+    startTime: "2026-05-16T17:05:56Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2026-05-16T17:05:51Z"
+    name: saasphere
+    namespace: saasphere
+    resourceVersion: "378398"
+    uid: c622659d-019b-426c-ba64-0856e338563f
+  spec:
+    clusterIP: 10.43.57.189
+    clusterIPs:
+    - 10.43.57.189
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+    selector:
+      app: saasphere
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-05-16T17:05:51Z"
+    generation: 1
+    name: saasphere
+    namespace: saasphere
+    resourceVersion: "378447"
+    uid: 101582b2-4ebd-414f-af03-d4851805026d
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: saasphere
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        labels:
+          app: saasphere
+      spec:
+        containers:
+        - image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: html
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: html
+          persistentVolumeClaim:
+            claimName: saasphere-html
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-05-16T17:05:59Z"
+      lastUpdateTime: "2026-05-16T17:05:59Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2026-05-16T17:05:51Z"
+      lastUpdateTime: "2026-05-16T17:05:59Z"
+      message: ReplicaSet "saasphere-58ddf785bc" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-05-16T17:05:51Z"
+    generation: 1
+    labels:
+      app: saasphere
+      pod-template-hash: 58ddf785bc
+    name: saasphere-58ddf785bc
+    namespace: saasphere
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: saasphere
+      uid: 101582b2-4ebd-414f-af03-d4851805026d
+    resourceVersion: "378444"
+    uid: c2e251c9-9a54-415d-8c93-3d21e9a10bfc
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: saasphere
+        pod-template-hash: 58ddf785bc
+    template:
+      metadata:
+        labels:
+          app: saasphere
+          pod-template-hash: 58ddf785bc
+      spec:
+        containers:
+        - image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          name: nginx
+          ports:
+          - containerPort: 80
+            protocol: TCP
+          resources:
+            limits:
+              cpu: 200m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /usr/share/nginx/html
+            name: html
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: html
+          persistentVolumeClaim:
+            claimName: saasphere-html
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+- apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    annotations:
+      traefik.ingress.kubernetes.io/router.entrypoints: web
+    creationTimestamp: "2026-05-16T17:05:51Z"
+    generation: 1
+    name: saasphere
+    namespace: saasphere
+    resourceVersion: "378401"
+    uid: 2fc12db9-0415-4c1b-adfe-88f12f1672d2
+  spec:
+    ingressClassName: traefik
+    rules:
+    - host: saasphere.saasphere.local
+      http:
+        paths:
+        - backend:
+            service:
+              name: saasphere
+              port:
+                number: 80
+          path: /
+          pathType: Prefix
+  status:
+    loadBalancer:
+      ingress:
+      - ip: 192.168.1.240
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBdzCCAR2gAwIBAgIBADAKBggqhkjOPQQDAjAjMSEwHwYDVQQDDBhrM3Mtc2Vy
+      dmVyLWNhQDE3NzgwMTk2NjMwHhcNMjYwNTA1MjEyMTAzWhcNMzYwNTAyMjEyMTAz
+      WjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3NzgwMTk2NjMwWTATBgcqhkjO
+      PQIBBggqhkjOPQMBBwNCAATFlkYACsCkxyZsNXYLuX+C/tbJCCjpG4H6K2yq4Jbd
+      4u7MwRyeyWiwG9uyNIa2PsZWQBS9cWl/8c2xxSArjdg2o0IwQDAOBgNVHQ8BAf8E
+      BAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU7W5+EF4jt49qBd5HTTyE
+      fiQ3Wy4wCgYIKoZIzj0EAwIDSAAwRQIgcDDkVKanpct87I/d+BdBrObjmoTVTTCb
+      8YB8TH7d9GACIQDw6CnwnzsEcE2pjaHjutkNHuEOcJNSMgDReYX9UX+o7g==
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-05-16T17:05:50Z"
+    name: kube-root-ca.crt
+    namespace: saasphere
+    resourceVersion: "378391"
+    uid: c7b62c74-4ba1-4b45-9156-ac60ec10d88e
+kind: List
+metadata:
+  resourceVersion: ""

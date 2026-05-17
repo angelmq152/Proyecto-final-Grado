@@ -1,0 +1,6 @@
+[Unit]
+Description=Export WireGuard metrics to node_exporter textfile collector
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/wg-metrics.sh

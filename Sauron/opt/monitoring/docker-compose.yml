@@ -18,13 +18,13 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
+      - ./prometheus/rules:/etc/prometheus/rules:ro
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=30d'
       - '--web.enable-lifecycle'
-    networks:
-      - monitoring
+    networks: [monitoring]
 
   grafana:
     image: grafana/grafana:11.3.1
@@ -32,17 +32,16 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning:/etc/grafana/provisioning:ro
-      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    env_file: [.env]
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
       - GF_METRICS_ENABLED=true
-      - GF_USERS_ALLOW_SIGN_UP=false
-    networks:
-      - monitoring
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    networks: [monitoring]
 
   loki:
     image: grafana/loki:3.2.1
@@ -54,27 +53,40 @@ services:
       - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
       - loki_data:/loki
     command: -config.file=/etc/loki/loki-config.yml
-    networks:
-      - monitoring
+    networks: [monitoring]
 
   promtail:
     image: grafana/promtail:3.2.1
     container_name: promtail
+    privileged: true
     restart: unless-stopped
     volumes:
       - /var/log:/var/log:ro
+      - /var/log/journal:/var/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+      - /run/systemd/journal/socket:/run/systemd/journal/socket
       - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
     command: -config.file=/etc/promtail/promtail-config.yml
-    networks:
-      - monitoring
+    networks: [monitoring]
 
-  blackbox:
+  blackbox-exporter:
     image: prom/blackbox-exporter:v0.25.0
-    container_name: blackbox
+    container_name: blackbox-exporter
     restart: unless-stopped
     ports:
       - "9115:9115"
     volumes:
       - ./blackbox/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
-    networks:
-      - monitoring
+    networks: [monitoring]
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks: [monitoring]

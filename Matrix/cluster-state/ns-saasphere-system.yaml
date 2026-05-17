@@ -1,0 +1,328 @@
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    creationTimestamp: "2026-05-05T22:26:32Z"
+    generateName: kube-state-metrics-9f674f899-
+    generation: 1
+    labels:
+      app: kube-state-metrics
+      pod-template-hash: 9f674f899
+    name: kube-state-metrics-9f674f899-fmvg6
+    namespace: saasphere-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicaSet
+      name: kube-state-metrics-9f674f899
+      uid: c05859d9-861f-471a-aac5-45141233e329
+    resourceVersion: "3907"
+    uid: 6c756aa3-e0f1-4789-862c-ef8b35496a9d
+  spec:
+    containers:
+    - image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0
+      imagePullPolicy: IfNotPresent
+      name: kube-state-metrics
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      resources: {}
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zswqq
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    enableServiceLinks: true
+    nodeName: matrix
+    preemptionPolicy: PreemptLowerPriority
+    priority: 0
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext: {}
+    serviceAccount: leia-agent
+    serviceAccountName: leia-agent
+    terminationGracePeriodSeconds: 30
+    tolerations:
+    - effect: NoExecute
+      key: node.kubernetes.io/not-ready
+      operator: Exists
+      tolerationSeconds: 300
+    - effect: NoExecute
+      key: node.kubernetes.io/unreachable
+      operator: Exists
+      tolerationSeconds: 300
+    volumes:
+    - name: kube-api-access-zswqq
+      projected:
+        defaultMode: 420
+        sources:
+        - serviceAccountToken:
+            expirationSeconds: 3607
+            path: token
+        - configMap:
+            items:
+            - key: ca.crt
+              path: ca.crt
+            name: kube-root-ca.crt
+        - downwardAPI:
+            items:
+            - fieldRef:
+                apiVersion: v1
+                fieldPath: metadata.namespace
+              path: namespace
+  status:
+    conditions:
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-06T00:24:13Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodReadyToStartContainers
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-05T22:26:32Z"
+      observedGeneration: 1
+      status: "True"
+      type: Initialized
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-06T00:24:13Z"
+      observedGeneration: 1
+      status: "True"
+      type: Ready
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-06T00:24:13Z"
+      observedGeneration: 1
+      status: "True"
+      type: ContainersReady
+    - lastProbeTime: null
+      lastTransitionTime: "2026-05-05T22:26:32Z"
+      observedGeneration: 1
+      status: "True"
+      type: PodScheduled
+    containerStatuses:
+    - containerID: containerd://8576a8852d47f5a5b52b914113e61abeb52b5deabd7f2ca9116c6c8ea79c2e39
+      image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0
+      imageID: registry.k8s.io/kube-state-metrics/kube-state-metrics@sha256:639a1e2da549210adddc0391ff91e270e83f7873014aec53258462812f741e6f
+      lastState:
+        terminated:
+          containerID: containerd://e66f55b42f746f862fa7a2361f0fe913face0064f623d63a2823f0ea4cb277e2
+          exitCode: 255
+          finishedAt: "2026-05-06T00:24:07Z"
+          reason: Unknown
+          startedAt: "2026-05-05T22:26:36Z"
+      name: kube-state-metrics
+      ready: true
+      resources: {}
+      restartCount: 1
+      started: true
+      state:
+        running:
+          startedAt: "2026-05-06T00:24:13Z"
+      user:
+        linux:
+          gid: 65534
+          supplementalGroups:
+          - 65534
+          uid: 65534
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: kube-api-access-zswqq
+        readOnly: true
+        recursiveReadOnly: Disabled
+    hostIP: 192.168.1.202
+    hostIPs:
+    - ip: 192.168.1.202
+    observedGeneration: 1
+    phase: Running
+    podIP: 10.42.0.12
+    podIPs:
+    - ip: 10.42.0.12
+    qosClass: BestEffort
+    startTime: "2026-05-05T22:26:32Z"
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"name":"kube-state-metrics-nodeport","namespace":"saasphere-system"},"spec":{"ports":[{"nodePort":30080,"port":8080,"targetPort":8080}],"selector":{"app":"kube-state-metrics"},"type":"NodePort"}}
+    creationTimestamp: "2026-05-05T22:26:32Z"
+    name: kube-state-metrics-nodeport
+    namespace: saasphere-system
+    resourceVersion: "969"
+    uid: 4f3943be-9629-4e1d-80bf-f296675ddad7
+  spec:
+    clusterIP: 10.43.108.41
+    clusterIPs:
+    - 10.43.108.41
+    externalTrafficPolicy: Cluster
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - nodePort: 30080
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: kube-state-metrics
+    sessionAffinity: None
+    type: NodePort
+  status:
+    loadBalancer: {}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+      kubectl.kubernetes.io/last-applied-configuration: |
+        {"apiVersion":"apps/v1","kind":"Deployment","metadata":{"annotations":{},"name":"kube-state-metrics","namespace":"saasphere-system"},"spec":{"replicas":1,"selector":{"matchLabels":{"app":"kube-state-metrics"}},"template":{"metadata":{"labels":{"app":"kube-state-metrics"}},"spec":{"containers":[{"image":"registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0","name":"kube-state-metrics","ports":[{"containerPort":8080}]}],"serviceAccountName":"leia-agent"}}}}
+    creationTimestamp: "2026-05-05T22:26:32Z"
+    generation: 1
+    name: kube-state-metrics
+    namespace: saasphere-system
+    resourceVersion: "3913"
+    uid: 9b804d5b-02b0-40a8-ad7d-c0a852dbae35
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: kube-state-metrics
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        labels:
+          app: kube-state-metrics
+      spec:
+        containers:
+        - image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0
+          imagePullPolicy: IfNotPresent
+          name: kube-state-metrics
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: leia-agent
+        serviceAccountName: leia-agent
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2026-05-05T22:26:32Z"
+      lastUpdateTime: "2026-05-05T22:26:36Z"
+      message: ReplicaSet "kube-state-metrics-9f674f899" has successfully progressed.
+      reason: NewReplicaSetAvailable
+      status: "True"
+      type: Progressing
+    - lastTransitionTime: "2026-05-06T00:24:13Z"
+      lastUpdateTime: "2026-05-06T00:24:13Z"
+      message: Deployment has minimum availability.
+      reason: MinimumReplicasAvailable
+      status: "True"
+      type: Available
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+    updatedReplicas: 1
+- apiVersion: apps/v1
+  kind: ReplicaSet
+  metadata:
+    annotations:
+      deployment.kubernetes.io/desired-replicas: "1"
+      deployment.kubernetes.io/max-replicas: "2"
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: "2026-05-05T22:26:32Z"
+    generation: 1
+    labels:
+      app: kube-state-metrics
+      pod-template-hash: 9f674f899
+    name: kube-state-metrics-9f674f899
+    namespace: saasphere-system
+    ownerReferences:
+    - apiVersion: apps/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: Deployment
+      name: kube-state-metrics
+      uid: 9b804d5b-02b0-40a8-ad7d-c0a852dbae35
+    resourceVersion: "3910"
+    uid: c05859d9-861f-471a-aac5-45141233e329
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: kube-state-metrics
+        pod-template-hash: 9f674f899
+    template:
+      metadata:
+        labels:
+          app: kube-state-metrics
+          pod-template-hash: 9f674f899
+      spec:
+        containers:
+        - image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0
+          imagePullPolicy: IfNotPresent
+          name: kube-state-metrics
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        serviceAccount: leia-agent
+        serviceAccountName: leia-agent
+        terminationGracePeriodSeconds: 30
+  status:
+    availableReplicas: 1
+    fullyLabeledReplicas: 1
+    observedGeneration: 1
+    readyReplicas: 1
+    replicas: 1
+    terminatingReplicas: 0
+- apiVersion: v1
+  data:
+    ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      MIIBdzCCAR2gAwIBAgIBADAKBggqhkjOPQQDAjAjMSEwHwYDVQQDDBhrM3Mtc2Vy
+      dmVyLWNhQDE3NzgwMTk2NjMwHhcNMjYwNTA1MjEyMTAzWhcNMzYwNTAyMjEyMTAz
+      WjAjMSEwHwYDVQQDDBhrM3Mtc2VydmVyLWNhQDE3NzgwMTk2NjMwWTATBgcqhkjO
+      PQIBBggqhkjOPQMBBwNCAATFlkYACsCkxyZsNXYLuX+C/tbJCCjpG4H6K2yq4Jbd
+      4u7MwRyeyWiwG9uyNIa2PsZWQBS9cWl/8c2xxSArjdg2o0IwQDAOBgNVHQ8BAf8E
+      BAMCAqQwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU7W5+EF4jt49qBd5HTTyE
+      fiQ3Wy4wCgYIKoZIzj0EAwIDSAAwRQIgcDDkVKanpct87I/d+BdBrObjmoTVTTCb
+      8YB8TH7d9GACIQDw6CnwnzsEcE2pjaHjutkNHuEOcJNSMgDReYX9UX+o7g==
+      -----END CERTIFICATE-----
+  kind: ConfigMap
+  metadata:
+    annotations:
+      kubernetes.io/description: Contains a CA bundle that can be used to verify the
+        kube-apiserver when using internal endpoints such as the internal service
+        IP or kubernetes.default.svc. No other usage is guaranteed across distributions
+        of Kubernetes clusters.
+    creationTimestamp: "2026-05-05T22:25:03Z"
+    name: kube-root-ca.crt
+    namespace: saasphere-system
+    resourceVersion: "931"
+    uid: f455ec10-2153-4d3a-ae6a-b1fe88443c85
+kind: List
+metadata:
+  resourceVersion: ""

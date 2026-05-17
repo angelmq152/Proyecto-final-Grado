@@ -1,0 +1,6 @@
+[Unit]
+Description=Export fail2ban metrics to node_exporter textfile collector
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/bin/fail2ban-exporter.py

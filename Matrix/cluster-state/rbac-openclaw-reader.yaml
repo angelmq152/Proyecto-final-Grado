@@ -1,0 +1,118 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRole","metadata":{"annotations":{},"name":"openclaw-reader"},"rules":[{"apiGroups":[""],"resources":["pods","pods/log","services","endpoints","nodes","namespaces","events","configmaps","persistentvolumeclaims","persistentvolumes","resourcequotas","limitranges"],"verbs":["get","list","watch"]},{"apiGroups":["apps"],"resources":["deployments","replicasets","statefulsets","daemonsets"],"verbs":["get","list","watch"]},{"apiGroups":["batch"],"resources":["jobs","cronjobs"],"verbs":["get","list","watch"]},{"apiGroups":["networking.k8s.io"],"resources":["ingresses","networkpolicies"],"verbs":["get","list","watch"]},{"apiGroups":["traefik.io","traefik.containo.us"],"resources":["ingressroutes","middlewares","tlsoptions"],"verbs":["get","list","watch"]},{"apiGroups":["helm.cattle.io"],"resources":["helmcharts","helmchartconfigs"],"verbs":["get","list","watch"]},{"apiGroups":["metrics.k8s.io"],"resources":["pods","nodes"],"verbs":["get","list"]}]}
+  creationTimestamp: "2026-05-11T19:12:46Z"
+  name: openclaw-reader
+  resourceVersion: "205857"
+  uid: fd32f3fa-5283-4005-9c42-643c731627e9
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - pods/log
+  - services
+  - endpoints
+  - nodes
+  - namespaces
+  - events
+  - configmaps
+  - persistentvolumeclaims
+  - persistentvolumes
+  - resourcequotas
+  - limitranges
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - replicasets
+  - statefulsets
+  - daemonsets
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - batch
+  resources:
+  - jobs
+  - cronjobs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - networking.k8s.io
+  resources:
+  - ingresses
+  - networkpolicies
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - traefik.io
+  - traefik.containo.us
+  resources:
+  - ingressroutes
+  - middlewares
+  - tlsoptions
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - helm.cattle.io
+  resources:
+  - helmcharts
+  - helmchartconfigs
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - metrics.k8s.io
+  resources:
+  - pods
+  - nodes
+  verbs:
+  - get
+  - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{},"name":"openclaw-reader"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"openclaw-reader"},"subjects":[{"kind":"ServiceAccount","name":"openclaw-reader","namespace":"saasphere-system"}]}
+  creationTimestamp: "2026-05-11T19:12:46Z"
+  name: openclaw-reader
+  resourceVersion: "205858"
+  uid: bf318016-9443-44fd-b7e1-1d33217289d7
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: openclaw-reader
+subjects:
+- kind: ServiceAccount
+  name: openclaw-reader
+  namespace: saasphere-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"ServiceAccount","metadata":{"annotations":{},"name":"openclaw-reader","namespace":"saasphere-system"}}
+  creationTimestamp: "2026-05-11T19:12:46Z"
+  name: openclaw-reader
+  namespace: saasphere-system
+  resourceVersion: "205856"
+  uid: bc4eb1e1-5e65-4234-9ac4-4bd2f987467e

@@ -1,0 +1,26 @@
+=== nodos ===
+NAME       STATUS   ROLES           AGE   VERSION        INTERNAL-IP     EXTERNAL-IP   OS-IMAGE                         KERNEL-VERSION        CONTAINER-RUNTIME
+fallback   Ready    <none>          11d   v1.35.4+k3s1   192.168.1.210   <none>        Debian GNU/Linux 12 (bookworm)   6.1.0-41-amd64        containerd://2.2.3-k3s1
+matrix     Ready    control-plane   11d   v1.35.4+k3s1   192.168.1.202   <none>        Debian GNU/Linux 13 (trixie)     6.12.85+deb13-amd64   containerd://2.2.3-k3s1
+
+=== namespaces ===
+NAME               STATUS   AGE
+default            Active   11d
+demo-tfg           Active   4d21h
+kube-node-lease    Active   11d
+kube-public        Active   11d
+kube-system        Active   11d
+metallb-system     Active   3d20h
+prueba-tfg         Active   3d18h
+saasphere          Active   26h
+saasphere-system   Active   11d
+
+=== ingresses todos los ns ===
+NAMESPACE    NAME         CLASS     HOSTS                        ADDRESS         PORTS   AGE
+demo-tfg     demo-tfg     traefik   demo-tfg.saasphere.local     192.168.1.240   80      4d21h
+prueba-tfg   prueba-tfg   traefik   prueba-tfg.saasphere.local   192.168.1.240   80      3d18h
+saasphere    saasphere    traefik   saasphere.saasphere.local    192.168.1.240   80      26h
+
+=== deployments en ns tenant ===
+saasphere-system   kube-state-metrics       1/1     1            1           11d
+saasphere          saasphere                1/1     1            1           26h

@@ -1,0 +1,2604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SaaSphere — Tu web profesional, gestionada por IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Dark palette */
+    --bg-0: #05070b;
+    --bg-1: #0a0d13;
+    --bg-2: #11151c;
+    --bg-3: #1a1f29;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.14);
+    --line-strong: rgba(255,255,255,0.24);
+    --ink: #f4f6fa;
+    --ink-2: #a5adbc;
+    --ink-3: #6b7384;
+    --ink-4: #424b5a;
+
+    /* Accent — sphere logo blues */
+    --blue: #1f6feb;
+    --blue-bright: #4593ff;
+    --blue-deep: #0a2a6b;
+    --cyan: #2dd4ff;
+    --cyan-soft: #6bdfff;
+    --glow: rgba(31, 111, 235, 0.5);
+    --glow-cyan: rgba(45, 212, 255, 0.35);
+
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 16px;
+    --r-xl: 22px;
+
+    --font-display: 'Space Grotesk', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-display);
+    background: var(--bg-0);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  /* Cosmic background — extends behind everything */
+  .cosmic-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% -10%, rgba(31,111,235,0.25), transparent 50%),
+      radial-gradient(circle at 80% 10%, rgba(45,212,255,0.10), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(31,111,235,0.18), transparent 60%),
+      var(--bg-0);
+  }
+  .cosmic-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 40% 80%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1.5px 1.5px at 90% 25%, rgba(255,255,255,0.45), transparent),
+      radial-gradient(1px 1px at 15% 65%, rgba(45,212,255,0.5), transparent),
+      radial-gradient(1px 1px at 55% 15%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1.5px 1.5px at 85% 85%, rgba(255,255,255,0.35), transparent);
+    background-size: 800px 600px;
+    background-repeat: repeat;
+    opacity: 0.6;
+    animation: starsDrift 90s linear infinite;
+  }
+  @keyframes starsDrift {
+    from { background-position: 0 0; }
+    to { background-position: 800px 600px; }
+  }
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask: radial-gradient(circle at center top, black 0%, transparent 70%);
+    -webkit-mask: radial-gradient(circle at center top, black 0%, transparent 70%);
+  }
+  /* Ambient particle field — fixed full-viewport canvas */
+  .bg-particles {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.75;
+  }
+  /* Local particle accents in sections */
+  .particle-accent {
+    position: absolute;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.85;
+    mix-blend-mode: screen;
+  }
+  .accent-tl { top: -40px; left: -60px;  width: 320px; height: 320px; }
+  .accent-tr { top: -40px; right: -60px; width: 320px; height: 320px; }
+  .accent-br { bottom: -60px; right: -40px; width: 360px; height: 360px; }
+  .accent-bl { bottom: -60px; left: -40px;  width: 360px; height: 360px; }
+  .section, .problem, .hero { overflow: hidden; }
+
+  main, nav, footer, section { position: relative; z-index: 1; }
+
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ============ NAV — Dynamic Island style ============ */
+  .nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    padding: 12px 0 6px;
+    pointer-events: none;
+    transition: padding .25s ease;
+  }
+  .nav-wrap > .container { pointer-events: none; }
+  .nav-wrap.scrolled { padding: 8px 0 6px; }
+  .nav {
+    pointer-events: auto;
+    width: max-content;
+    max-width: calc(100% - 24px);
+    margin: 0 auto;
+    background: rgba(8, 10, 16, 0.62);
+    backdrop-filter: blur(22px) saturate(190%);
+    -webkit-backdrop-filter: blur(22px) saturate(190%);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 999px;
+    padding: 5px 6px 5px 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 16px 44px -16px rgba(0,0,0,0.7),
+      0 0 0 1px rgba(255,255,255,0.02);
+    transition: background .25s ease, border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+  }
+  .nav-wrap.scrolled .nav {
+    background: rgba(8, 10, 16, 0.82);
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(0) scale(0.985);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,0.06) inset,
+      0 22px 52px -18px rgba(0,0,0,0.85),
+      0 0 28px -8px var(--glow);
+  }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .brand {
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none; color: inherit;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: -0.015em;
+    padding: 2px 4px 2px 0;
+  }
+  .brand-mark {
+    width: 26px;
+    height: 26px;
+    display: block;
+    border-radius: 50%;
+  }
+  .brand-name { white-space: nowrap; }
+  .brand-name .a { color: var(--blue-bright); }
+
+  /* mini particle canvas in nav */
+  .brand-canvas {
+    width: 30px;
+    height: 30px;
+    display: block;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px var(--glow));
+  }
+
+  .nav-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255,255,255,0.08);
+    margin: 0 2px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .nav-links a {
+    color: var(--ink-2);
+    text-decoration: none;
+    padding: 6px 11px;
+    border-radius: 999px;
+    transition: color .2s, background .2s;
+    position: relative;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--ink); background: rgba(255,255,255,0.05); }
+  .nav-links a.new::after {
+    content: '';
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .nav-right { display: flex; align-items: center; gap: 6px; margin-left: 2px; }
+  .icon-btn {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.04);
+    color: var(--ink-2);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: all .2s;
+  }
+  .icon-btn:hover { background: rgba(255,255,255,0.09); color: var(--ink); }
+  .nav-cta {
+    font-size: 13px; font-weight: 500;
+    background: linear-gradient(135deg, var(--blue-bright) 0%, var(--blue) 100%);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 6px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: all .25s;
+    text-decoration: none;
+    box-shadow: 0 6px 18px -6px var(--glow);
+    white-space: nowrap;
+  }
+  .nav-cta:hover {
+    box-shadow: 0 10px 26px -6px var(--glow);
+    transform: translateY(-1px);
+  }
+  .nav-cta span { transition: transform .25s; }
+  .nav-cta:hover span { transform: translateX(2px); }
+  .burger {
+    display: none;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.04);
+    color: var(--ink);
+    cursor: pointer;
+    align-items: center; justify-content: center;
+  }
+  /* hidden helpers — keep DOM, hide visually */
+  .nav .nav-login { display: none; }
+
+  /* ============ HERO ============ */
+  .hero {
+    padding: 100px 0 80px;
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-2);
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 28px;
+    letter-spacing: 0.02em;
+  }
+  .eyebrow .pulse {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 0 0 var(--glow-cyan);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 var(--glow-cyan); }
+    70% { box-shadow: 0 0 0 8px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  h1.hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 6vw, 84px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    font-weight: 700;
+    margin: 0 0 24px;
+  }
+  .hero-title .grad {
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 50%, var(--blue) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-lede {
+    font-size: 18px;
+    color: var(--ink-2);
+    max-width: 520px;
+    line-height: 1.55;
+    margin: 0 0 36px;
+  }
+  .hero-ctas {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all .25s ease;
+    text-decoration: none;
+    line-height: 1;
+  }
+  .btn.primary {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-deep) 100%);
+    color: #fff;
+    border-color: var(--blue-bright);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset, 0 12px 32px -8px var(--glow);
+  }
+  .btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset, 0 18px 48px -10px var(--glow);
+  }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+    border-color: var(--line-2);
+  }
+  .btn.ghost:hover { border-color: var(--line-strong); background: rgba(255,255,255,0.03); }
+  .btn .micro {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  .micro-stat {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    flex-wrap: wrap;
+  }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-meta span::before {
+    content: '';
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--cyan);
+  }
+
+  /* Hero visual — big static logo + ambient effects */
+  .hero-visual {
+    position: relative;
+    aspect-ratio: 1;
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-visual .glow {
+    position: absolute;
+    inset: 5%;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+    filter: blur(40px);
+    animation: glowPulse 5s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.08); }
+  }
+  .hero-visual .rings {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .hero-visual .rings .ring {
+    position: absolute;
+    inset: 0;
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 50%;
+    animation: ringSpin 60s linear infinite;
+  }
+  .hero-visual .rings .ring.r2 {
+    inset: 8%;
+    animation-duration: 80s;
+    animation-direction: reverse;
+    opacity: 0.6;
+  }
+  .hero-visual .rings .ring.r3 {
+    inset: 16%;
+    border-style: solid;
+    border-color: rgba(255,255,255,0.05);
+    animation-duration: 100s;
+  }
+  @keyframes ringSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .hero-visual .logo-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 2;
+    cursor: grab;
+    filter: drop-shadow(0 20px 60px var(--glow));
+    touch-action: none;
+  }
+  .hero-visual .logo-canvas:active { cursor: grabbing; }
+
+  /* ============ Section heading style ============ */
+  .section {
+    padding: 100px 0;
+    position: relative;
+  }
+  .section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 16px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    width: 24px; height: 1px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4.5vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+    margin: 0 0 16px;
+    max-width: 760px;
+  }
+  .section-title .grad {
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .section-sub {
+    font-size: 17px;
+    color: var(--ink-2);
+    max-width: 640px;
+    line-height: 1.55;
+    margin: 0;
+  }
+  .section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 30px;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+
+  /* ============ Logos band (problem context) ============ */
+  .problem {
+    padding: 60px 0 40px;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent);
+  }
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .problem-stat {
+    font-family: var(--font-display);
+    font-size: clamp(80px, 14vw, 160px);
+    line-height: 0.85;
+    letter-spacing: -0.06em;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue) 60%, var(--blue-deep) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .problem-stat .pct { font-size: 0.5em; vertical-align: super; opacity: 0.7; }
+  .problem-text h3 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+    line-height: 1.15;
+  }
+  .problem-text p {
+    color: var(--ink-2);
+    margin: 0 0 14px;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .problem-text .micro-stat {
+    margin-top: 10px;
+  }
+
+  /* ============ Services / 3 products ============ */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .service-card {
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    transition: all .3s ease;
+    cursor: pointer;
+  }
+  .service-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: var(--r-lg);
+    background: linear-gradient(135deg, transparent 50%, var(--blue) 100%);
+    opacity: 0;
+    z-index: -1;
+    transition: opacity .3s ease;
+  }
+  .service-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--line-strong);
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,0.5), 0 0 40px -10px var(--glow);
+  }
+  .service-card .num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+    margin-bottom: 18px;
+  }
+  .service-card h3 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .service-card .price {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-bottom: 20px;
+  }
+  .service-card .price .amount {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--blue-bright);
+  }
+  .service-card .price .per {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .service-card .desc {
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0 0 24px;
+  }
+  .service-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .service-card ul li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--ink-2);
+    line-height: 1.5;
+  }
+  .service-card ul li svg {
+    flex-shrink: 0;
+    margin-top: 3px;
+    color: var(--cyan);
+  }
+  .service-card .card-link {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--blue-bright);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-top: 1px solid var(--line);
+    padding-top: 18px;
+    transition: gap .2s;
+  }
+  .service-card:hover .card-link { gap: 10px; }
+
+  .service-card.featured {
+    background: linear-gradient(180deg, rgba(31,111,235,0.15), var(--bg-2));
+    border-color: rgba(31,111,235,0.4);
+  }
+  .service-card.featured .badge-mini {
+    position: absolute;
+    top: 20px; right: 20px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--cyan);
+    background: rgba(45,212,255,0.1);
+    border: 1px solid rgba(45,212,255,0.3);
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+  }
+
+  /* ============ LeIA showcase ============ */
+  .leia-section {
+    padding: 100px 0;
+    position: relative;
+  }
+  .leia-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 60px;
+    align-items: center;
+  }
+  .leia-visual {
+    position: relative;
+    aspect-ratio: 1;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    padding: 30px;
+    overflow: hidden;
+  }
+  .leia-visual::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 30%, var(--glow) 0%, transparent 40%),
+      radial-gradient(circle at 70% 70%, var(--glow-cyan) 0%, transparent 40%);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .leia-terminal {
+    position: relative;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid var(--line-2);
+    border-radius: var(--r-md);
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--ink-2);
+    z-index: 2;
+    height: 100%;
+    overflow: hidden;
+  }
+  .leia-terminal .head {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .leia-terminal .dots {
+    display: flex; gap: 5px;
+  }
+  .leia-terminal .dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+  }
+  .leia-terminal .title-t {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .leia-terminal .ts { color: var(--ink-4); }
+  .leia-terminal .lv-info { color: var(--cyan); }
+  .leia-terminal .lv-ok { color: #5dd99b; }
+  .leia-terminal .lv-warn { color: #f0a55b; }
+  .leia-terminal .actor { color: var(--blue-bright); }
+  .leia-terminal .quote { color: var(--ink); }
+  .leia-terminal .meta { color: var(--ink-4); }
+  .leia-terminal .row { display: block; opacity: 0; animation: typeIn 0.4s forwards; }
+  .leia-terminal .row:nth-child(2) { animation-delay: 0.2s; }
+  .leia-terminal .row:nth-child(3) { animation-delay: 0.6s; }
+  .leia-terminal .row:nth-child(4) { animation-delay: 1.0s; }
+  .leia-terminal .row:nth-child(5) { animation-delay: 1.4s; }
+  .leia-terminal .row:nth-child(6) { animation-delay: 1.8s; }
+  .leia-terminal .row:nth-child(7) { animation-delay: 2.2s; }
+  .leia-terminal .row:nth-child(8) { animation-delay: 2.6s; }
+  .leia-terminal .row:nth-child(9) { animation-delay: 3.0s; }
+  @keyframes typeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .leia-text h3 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4.5vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+  .leia-text h3 .name {
+    color: var(--cyan);
+    font-style: italic;
+    font-weight: 700;
+  }
+  .leia-text .lede-l {
+    font-size: 17px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin: 0 0 28px;
+    max-width: 520px;
+  }
+  .leia-features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+  .leia-feat {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .leia-feat .ic {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: rgba(31,111,235,0.12);
+    border: 1px solid rgba(31,111,235,0.25);
+    color: var(--blue-bright);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .leia-feat h5 {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .leia-feat p {
+    font-size: 13px;
+    color: var(--ink-3);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* ============ How it works / 4 steps ============ */
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+  }
+  .steps-grid::before {
+    /* dotted line connecting steps */
+    content: '';
+    position: absolute;
+    top: 56px;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background-image: linear-gradient(90deg, var(--line-strong) 0 6px, transparent 6px 14px);
+    background-size: 14px 1px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .step-card {
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all .3s ease;
+    display: flex;
+    flex-direction: column;
+  }
+  .step-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--line-strong);
+    box-shadow: 0 24px 60px -20px var(--glow);
+  }
+  .step-card .step-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--cyan);
+    background: rgba(45,212,255,0.08);
+    border: 1px solid rgba(45,212,255,0.25);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .step-card .step-time {
+    position: absolute;
+    top: 28px; right: 24px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+  }
+  .step-card h4 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+    line-height: 1.15;
+  }
+  .step-card p {
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 0 0 18px;
+    flex: 1;
+  }
+  .step-card .step-list {
+    list-style: none;
+    padding: 0; margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+  }
+  .step-card .step-list li {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    padding-left: 16px;
+    position: relative;
+  }
+  .step-card .step-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+    font-weight: 700;
+  }
+  .step-card.featured {
+    background: linear-gradient(180deg, rgba(31,111,235,0.18), var(--bg-2));
+    border-color: rgba(31,111,235,0.4);
+    box-shadow: 0 0 0 1px rgba(31,111,235,0.1) inset;
+  }
+  .step-card.featured .step-num {
+    background: rgba(31,111,235,0.2);
+    border-color: rgba(31,111,235,0.5);
+    color: var(--blue-bright);
+  }
+  .step-card .step-badge {
+    position: absolute;
+    top: 0; right: 24px;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--bg-0);
+    background: var(--cyan);
+    padding: 4px 10px;
+    border-radius: 999px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    z-index: 3;
+    box-shadow: 0 0 20px var(--glow-cyan);
+  }
+
+  .steps-foot {
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 24px 32px;
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .steps-foot-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+  }
+  .steps-foot-item .sf-val {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    line-height: 1;
+  }
+  .steps-foot-item .sf-lbl {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+  }
+  .steps-foot-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--line);
+  }
+
+  /* ============ Pricing table ============ */
+  .pricing-wrap {
+    background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    padding: 32px;
+    overflow: hidden;
+  }
+  .pricing-toggle {
+    display: flex;
+    gap: 4px;
+    background: var(--bg-3);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 4px;
+    width: fit-content;
+    margin: 0 auto 32px;
+  }
+  .pricing-toggle button {
+    background: transparent;
+    border: none;
+    color: var(--ink-2);
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all .25s;
+  }
+  .pricing-toggle button.active {
+    background: var(--blue);
+    color: white;
+    box-shadow: 0 0 24px -6px var(--glow);
+  }
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: 1.2fr repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+  }
+  .pricing-grid > div {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    background: rgba(255,255,255,0.01);
+  }
+  .pricing-grid > div:nth-child(4n) { border-right: none; }
+  .pricing-grid > div.head {
+    background: rgba(255,255,255,0.025);
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .pricing-grid > div.row-head {
+    background: rgba(255,255,255,0.025);
+  }
+  .pricing-grid > div.row-head .pname {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .pricing-grid > div.row-head .pdesc {
+    font-size: 12px;
+    color: var(--ink-3);
+    line-height: 1.4;
+  }
+  .pricing-grid > div.cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .pricing-grid > div.cell .amount {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .pricing-grid > div.cell .amount .a { color: var(--blue-bright); }
+  .pricing-grid > div.cell .per {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+  .pricing-grid > div.cell.featured {
+    background: rgba(31,111,235,0.08);
+  }
+  .pricing-grid > div.head.featured {
+    background: rgba(31,111,235,0.15);
+    color: var(--blue-bright);
+  }
+  .pricing-foot {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  /* ============ Comparison table ============ */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+  }
+  .compare-grid > div {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: rgba(255,255,255,0.01);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .compare-grid > div:nth-child(4n) { border-right: none; }
+  .compare-grid > div.head {
+    background: rgba(255,255,255,0.03);
+    font-family: var(--font-display);
+    font-weight: 600;
+    color: var(--ink);
+    font-size: 14px;
+  }
+  .compare-grid > div.head.us {
+    background: rgba(31,111,235,0.15);
+    color: var(--blue-bright);
+  }
+  .compare-grid > div.cell-us {
+    background: rgba(31,111,235,0.05);
+    color: var(--ink);
+  }
+  .compare-grid > div.row-label {
+    background: rgba(255,255,255,0.02);
+    font-family: var(--font-display);
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .compare-grid .yes { color: #5dd99b; font-family: var(--font-mono); }
+  .compare-grid .no { color: var(--ink-4); font-family: var(--font-mono); }
+
+  /* ============ CTA banner ============ */
+  .cta-banner {
+    padding: 80px 0 100px;
+  }
+  .cta-card {
+    background:
+      radial-gradient(circle at 20% 30%, var(--glow) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, var(--glow-cyan) 0%, transparent 50%),
+      linear-gradient(180deg, var(--bg-2), var(--bg-1));
+    border: 1px solid var(--line-2);
+    border-radius: 24px;
+    padding: 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    mask: radial-gradient(circle at center, black, transparent 70%);
+    -webkit-mask: radial-gradient(circle at center, black, transparent 70%);
+    pointer-events: none;
+  }
+  .cta-card h2 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    font-weight: 600;
+    margin: 0 0 18px;
+    position: relative;
+  }
+  .cta-card h2 .grad {
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .cta-card p {
+    font-size: 17px;
+    color: var(--ink-2);
+    max-width: 520px;
+    margin: 0 auto 32px;
+    line-height: 1.5;
+    position: relative;
+  }
+  .cta-card .ctas {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    position: relative;
+    flex-wrap: wrap;
+  }
+
+  /* ============ Footer ============ */
+  footer {
+    padding: 60px 0 30px;
+    border-top: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(4, 1fr);
+    gap: 50px;
+    margin-bottom: 50px;
+  }
+  .footer-brand p {
+    font-size: 14px;
+    color: var(--ink-2);
+    line-height: 1.55;
+    margin: 16px 0 24px;
+    max-width: 260px;
+  }
+  .footer-social {
+    display: flex;
+    gap: 8px;
+  }
+  .footer-social a {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s;
+    text-decoration: none;
+  }
+  .footer-social a:hover { color: var(--ink); border-color: var(--line-strong); }
+  .footer-col h5 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 16px;
+    font-weight: 500;
+  }
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .footer-col ul li a {
+    color: var(--ink-2);
+    text-decoration: none;
+    font-size: 14px;
+    transition: color .2s;
+  }
+  .footer-col ul li a:hover { color: var(--ink); }
+  .footer-bottom {
+    border-top: 1px solid var(--line);
+    padding-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .footer-bottom .status {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .footer-bottom .status .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #5dd99b;
+    box-shadow: 0 0 8px #5dd99b;
+  }
+
+  /* ============ Scroll reveal ============ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity .8s ease, transform .8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ============ Mobile menu overlay ============ */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-0);
+    z-index: 100;
+    transform: translateY(-100%);
+    transition: transform .4s cubic-bezier(.7,0,.2,1);
+    display: flex;
+    flex-direction: column;
+    padding: 80px 32px 40px;
+  }
+  .mobile-menu.open { transform: translateY(0); }
+  .mobile-menu a {
+    color: var(--ink);
+    text-decoration: none;
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .mobile-menu .close-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ============ Responsive ============ */
+  @media (max-width: 980px) {
+    .container { padding: 0 20px; }
+    .nav-links, .nav-login, .nav-divider { display: none; }
+    .burger { display: inline-flex; }
+    .nav { padding: 5px 6px 5px 8px; }
+    .hero { padding: 60px 0 60px; }
+    .hero-grid, .problem-grid, .leia-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { max-width: 360px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .steps-grid::before { display: none; }
+    .steps-foot { flex-direction: column; }
+    .steps-foot-divider { width: 40px; height: 1px; }
+    .leia-features { grid-template-columns: 1fr; }
+    .pricing-grid, .compare-grid { grid-template-columns: 1fr; }
+    .pricing-grid > div, .compare-grid > div { border-right: none !important; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 30px; }
+    .cta-card { padding: 40px 24px; }
+    .section { padding: 60px 0; }
+  }
+
+  /* ============ Tweaks panel ============ */
+  #tweaks {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    width: 280px;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: 14px;
+    box-shadow: 0 30px 80px -10px rgba(0,0,0,0.6);
+    padding: 18px;
+    z-index: 200;
+    display: none;
+  }
+  #tweaks.open { display: block; }
+  #tweaks h4 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 0 0 16px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 500;
+  }
+  #tweaks .close-x { background: none; border: none; color: var(--ink-3); cursor: pointer; font-size: 18px; line-height: 1; }
+  #tweaks .row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  #tweaks .swatches { display: flex; gap: 6px; }
+  #tweaks .swatch {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 1px solid var(--line-2);
+    cursor: pointer;
+  }
+  #tweaks .swatch.active { box-shadow: 0 0 0 2px var(--bg-2), 0 0 0 4px var(--ink); }
+  #tweaks .toggle-mini {
+    width: 36px; height: 20px;
+    border-radius: 999px;
+    background: var(--bg-3);
+    border: 1px solid var(--line-2);
+    position: relative;
+    cursor: pointer;
+  }
+  #tweaks .toggle-mini::after {
+    content: '';
+    position: absolute;
+    top: 1px; left: 1px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--ink-2);
+    transition: left .2s, background .2s;
+  }
+  #tweaks .toggle-mini.on { background: var(--blue); }
+  #tweaks .toggle-mini.on::after { left: 17px; background: white; }
+  body.no-anim *, body.no-anim *::before, body.no-anim *::after {
+    animation-duration: 0s !important;
+    animation-iteration-count: 0 !important;
+    transition-duration: 0s !important;
+  }
+</style>
+</head>
+<body>
+
+<div class="cosmic-bg"></div>
+<canvas id="bg-particles" class="bg-particles" aria-hidden="true"></canvas>
+<div class="grid-overlay"></div>
+
+<!-- ============ NAV ============ -->
+<header class="nav-wrap" id="navWrap">
+  <div class="container">
+    <nav class="nav">
+      <div class="nav-left">
+        <a href="#inicio" class="brand">
+          <canvas id="logo-canvas-nav" class="brand-canvas" aria-label="SaaSphere"></canvas>
+          <span class="brand-name">Saa<span class="a">Sphere</span></span>
+        </a>
+        <span class="nav-divider"></span>
+        <div class="nav-links">
+          <a href="#servicios">Servicios</a>
+          <a href="#leia" class="new">LeIA</a>
+          <a href="#arquitectura">Cómo funciona</a>
+          <a href="#precios">Precios</a>
+          <a href="#cta">Contacto</a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a class="nav-cta" href="#cta">Empezar <span>→</span></a>
+        <button class="burger" id="burger" aria-label="Menú">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<!-- mobile menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="close-btn" id="closeBtn">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <a href="#inicio">Inicio</a>
+  <a href="#servicios">Servicios</a>
+  <a href="#leia">LeIA</a>
+  <a href="#arquitectura">Cómo funciona</a>
+  <a href="#precios">Precios</a>
+  <a href="#">Clientes</a>
+  <a href="#">Documentación</a>
+  <a href="#">Blog</a>
+  <a href="#">Nosotros</a>
+  <a href="#">Contacto</a>
+</div>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="inicio">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="pulse"></span> v1.0 · Plataforma autogestionada por IA</span>
+        <h1 class="hero-title">Tu web,<br>en órbita.<br><span class="grad">Sin levantarte de la silla.</span></h1>
+        <p class="hero-lede">Webs, aplicaciones y tiendas online en suscripción mensual. SaaSphere se encarga del dominio, el hosting, el SSL, la monitorización y el soporte — gestionado de forma autónoma por <b style="color:var(--cyan);">LeIA</b>, nuestra inteligencia artificial.</p>
+        <div class="hero-ctas">
+          <a class="btn primary" href="#cta">Empezar desde 59 €/mes <span>→</span></a>
+          <a class="btn ghost" href="#leia">Conoce a LeIA</a>
+        </div>
+        <div class="hero-meta">
+          <span>Sin inversión inicial</span>
+          <span>Despliegue en horas</span>
+          <span>Soporte 24/7 por IA</span>
+        </div>
+      </div>
+      <div class="hero-visual" id="hero-visual">
+        <div class="rings">
+          <div class="ring"></div>
+          <div class="ring r2"></div>
+          <div class="ring r3"></div>
+        </div>
+        <div class="glow"></div>
+        <canvas id="logo-canvas" class="logo-canvas" aria-label="SaaSphere"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROBLEM ============ -->
+<section class="problem reveal">
+  <canvas class="particle-accent accent-tr" data-sphere="accent" data-count="380" aria-hidden="true"></canvas>
+  <div class="container">
+    <div class="problem-grid">
+      <div>
+        <div class="problem-stat"><span data-counter="61.8">61.8</span><span class="pct">%</span></div>
+        <div class="micro-stat">// fuente: INE · digitalización empresarial</div>
+      </div>
+      <div class="problem-text">
+        <span class="section-eyebrow">El problema</span>
+        <h3>De las empresas españolas no tienen presencia digital.</h3>
+        <p>1.6 millones de autónomos y 1.3 millones de pequeñas empresas siguen funcionando "del boca a boca". El motivo no es la falta de necesidad — es el <b style="color:var(--ink);">coste de entrada</b>: las agencias tradicionales arrancan desde 2.940 € hasta superar los 20.000 €.</p>
+        <p>SaaSphere elimina esa barrera con un modelo de suscripción mensual sin desembolso inicial y un soporte gestionado por IA que responde en segundos.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section class="section reveal" id="servicios">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Servicios</span>
+        <h2 class="section-title">Tres productos.<br><span class="grad">Tres niveles de soporte.</span></h2>
+      </div>
+      <p class="section-sub">Elige el tipo de web que necesitas y el nivel de soporte que quieres. Nueve combinaciones para ajustarse a cualquier proyecto, desde la primera landing hasta la app con gestión de usuarios.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="num">// PRODUCTO · 01</div>
+        <h3>Landing Page</h3>
+        <div class="price"><span class="amount">59 €</span><span class="per">/ mes · desde</span></div>
+        <p class="desc">Una sola página, alta conversión. Ideal para presentar tu negocio, generar leads o lanzar un nuevo producto.</p>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Dominio + SSL incluidos</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Formulario de contacto</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Diseño responsive</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Despliegue en 48 h</li>
+        </ul>
+        <a class="card-link" href="#precios">Ver planes <span>→</span></a>
+      </div>
+
+      <div class="service-card featured">
+        <span class="badge-mini">MÁS POPULAR</span>
+        <div class="num">// PRODUCTO · 02</div>
+        <h3>Web Corporativa</h3>
+        <div class="price"><span class="amount">99 €</span><span class="per">/ mes · desde</span></div>
+        <p class="desc">Múltiples páginas, blog gestionable desde un CMS sencillo y personalización frontend completa para tu marca.</p>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Todo lo de Landing</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Blog + CMS sencillo</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Galería + formularios</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Personalización frontend</li>
+        </ul>
+        <a class="card-link" href="#precios">Ver planes <span>→</span></a>
+      </div>
+
+      <div class="service-card">
+        <div class="num">// PRODUCTO · 03</div>
+        <h3>Web con usuarios</h3>
+        <div class="price"><span class="amount">179 €</span><span class="per">/ mes · desde</span></div>
+        <p class="desc">Registro y login, área privada y gestión de contenido por perfil. Tienda online o gestión de reservas opcionales.</p>
+        <ul>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Todo lo de Corporativa</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Registro / login / 2FA</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Área privada por perfil</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Tienda · reservas · CRM</li>
+        </ul>
+        <a class="card-link" href="#precios">Ver planes <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LeIA ============ -->
+<section class="leia-section reveal" id="leia">
+  <canvas class="particle-accent accent-bl" data-sphere="accent" data-count="500" data-radius="0.5" aria-hidden="true"></canvas>
+  <div class="container">
+    <div class="leia-grid">
+      <div class="leia-visual">
+        <div class="leia-terminal">
+          <div class="head">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span class="title-t">leia@saasphere · live feed</span>
+          </div>
+          <div class="row"><span class="ts">[03:14:22]</span> <span class="lv-info">INFO</span> <span class="actor">leia</span> · escaneando métricas (prometheus)</div>
+          <div class="row"><span class="ts">[03:14:24]</span> <span class="lv-warn">WARN</span> CPU node-matrix · 84% sostenido (5m)</div>
+          <div class="row"><span class="ts">[03:14:25]</span> <span class="actor">leia</span> · <span class="quote">"voy a reiniciar el pod nginx-3a7b para liberar memoria"</span></div>
+          <div class="row"><span class="ts">[03:14:25]</span> <span class="meta">→ approval: auto · within scope</span></div>
+          <div class="row"><span class="ts">[03:14:27]</span> <span class="lv-ok">OK</span> kubectl rollout restart deployment/nginx</div>
+          <div class="row"><span class="ts">[03:14:31]</span> <span class="lv-ok">OK</span> pod ready · CPU vuelta al 23%</div>
+          <div class="row"><span class="ts">[03:14:32]</span> <span class="actor">leia</span> · logged to audit · notified to ops</div>
+          <div class="row"><span class="ts">[03:14:33]</span> <span class="lv-info">INFO</span> resuming cluster scan...</div>
+        </div>
+      </div>
+      <div class="leia-text">
+        <span class="section-eyebrow">El cerebro</span>
+        <h3>Conoce a <span class="name">LeIA</span></h3>
+        <p class="lede-l">Un agente autónomo, construido sobre <b style="color:var(--ink);">Ollama + OpenClaw</b>, que opera la infraestructura de forma continua. Observa el clúster, razona sobre su estado y ejecuta acciones dentro de límites definidos. Las irreversibles, las aprueba un humano.</p>
+        <div class="leia-features">
+          <div class="leia-feat">
+            <div class="ic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2 7h7l-6 4 2 7-7-4-7 4 2-7-6-4h7z"/></svg>
+            </div>
+            <div><h5>Observa</h5><p>Lee métricas de Prometheus y logs de Loki en tiempo real.</p></div>
+          </div>
+          <div class="leia-feat">
+            <div class="ic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="9"/></svg>
+            </div>
+            <div><h5>Razona</h5><p>Modelo local en Ollama + razonamiento profundo bajo demanda.</p></div>
+          </div>
+          <div class="leia-feat">
+            <div class="ic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div><h5>Actúa</h5><p>K3s como ejecutor con scripts y herramientas pre-aprobadas.</p></div>
+          </div>
+          <div class="leia-feat">
+            <div class="ic">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+            </div>
+            <div><h5>Audita</h5><p>Cada decisión y acción queda registrada y notificada por Telegram.</p></div>
+          </div>
+        </div>
+        <a class="btn ghost" href="#">Ver documentación técnica <span>→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="section reveal" id="arquitectura">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Cómo funciona</span>
+        <h2 class="section-title">De la primera llamada<br>a tu web <span class="grad">en producción.</span></h2>
+      </div>
+      <p class="section-sub">Sin reuniones eternas, sin presupuestos kilométricos, sin esperar meses. En cuatro pasos y menos de 48 horas tu web está online y trabajando por ti.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-time">15 min</div>
+        <h4>Cuéntanos tu proyecto</h4>
+        <p>Una llamada corta o un formulario. Entendemos qué necesitas, a quién te diriges y elegimos juntos el pack que mejor encaja.</p>
+        <ul class="step-list">
+          <li>Sin compromiso</li>
+          <li>Sin presupuestos sorpresa</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-time">24 h</div>
+        <h4>Disenamos contigo</h4>
+        <p>Te ensenamos una primera versión en 24 horas. Iteramos rápido gracias a la IA: tus cambios, listos en horas, no en semanas.</p>
+        <ul class="step-list">
+          <li>Cambios ilimitados</li>
+          <li>Aprobación previa al despliegue</li>
+        </ul>
+      </div>
+
+      <div class="step-card featured">
+        <span class="step-badge">LO MÁS RÁPIDO DEL MERCADO</span>
+        <div class="step-num">03</div>
+        <div class="step-time">48 h</div>
+        <h4>Publicamos tu web</h4>
+        <p>Tu dominio, el SSL, el hosting y las copias de seguridad: todo configurado por nosotros. Tú solo das la URL a tus clientes.</p>
+        <ul class="step-list">
+          <li>Dominio + SSL incluidos</li>
+          <li>Copias de seguridad automáticas</li>
+          <li>Optimizada para Google</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-time">24/7</div>
+        <h4>LeIA cuida tu web</h4>
+        <p>A partir de ahí, todo va solo. La IA vigila tu web día y noche, resuelve incidencias antes de que las notes y te avisa si algo necesita tu atención.</p>
+        <ul class="step-list">
+          <li>Vigilancia continua</li>
+          <li>Respuesta automática a incidencias</li>
+          <li>Tú te dedicas a tu negocio</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="steps-foot">
+      <div class="steps-foot-item">
+        <div class="sf-val">48 h</div>
+        <div class="sf-lbl">Tiempo medio<br>al despliegue</div>
+      </div>
+      <div class="steps-foot-divider"></div>
+      <div class="steps-foot-item">
+        <div class="sf-val">99.99 <span style="font-size:0.7em;">%</span></div>
+        <div class="sf-lbl">Uptime garantizado<br>por contrato</div>
+      </div>
+      <div class="steps-foot-divider"></div>
+      <div class="steps-foot-item">
+        <div class="sf-val">&lt; 4 min</div>
+        <div class="sf-lbl">Respuesta media<br>de LeIA a incidencias</div>
+      </div>
+      <div class="steps-foot-divider"></div>
+      <div class="steps-foot-item">
+        <div class="sf-val">0 €</div>
+        <div class="sf-lbl">Inversión inicial.<br>Solo cuota mensual</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="section reveal" id="precios">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Precios</span>
+        <h2 class="section-title">Sin sorpresas.<br><span class="grad">Sin coste inicial.</span></h2>
+      </div>
+      <p class="section-sub">Una tarifa mensual por producto y nivel de soporte. Sin permanencia. Lo mismo cada mes, lo siguiente se decide juntos.</p>
+    </div>
+
+    <div class="pricing-wrap">
+      <div class="pricing-grid">
+        <div class="head"></div>
+        <div class="head">Basic</div>
+        <div class="head featured">Standard</div>
+        <div class="head">Premium 24/7</div>
+
+        <div class="row-head">
+          <div class="pname">Landing Page</div>
+          <div class="pdesc">Una página · alta conversión</div>
+        </div>
+        <div class="cell"><span class="amount"><span class="a">59</span> €</span><span class="per">/ mes</span></div>
+        <div class="cell featured"><span class="amount"><span class="a">89</span> €</span><span class="per">/ mes</span></div>
+        <div class="cell"><span class="amount"><span class="a">129</span> €</span><span class="per">/ mes</span></div>
+
+        <div class="row-head">
+          <div class="pname">Web Corporativa</div>
+          <div class="pdesc">Multipágina · blog + CMS</div>
+        </div>
+        <div class="cell"><span class="amount"><span class="a">99</span> €</span><span class="per">/ mes</span></div>
+        <div class="cell featured"><span class="amount"><span class="a">149</span> €</span><span class="per">/ mes</span></div>
+        <div class="cell"><span class="amount"><span class="a">199</span> €</span><span class="per">/ mes</span></div>
+
+        <div class="row-head">
+          <div class="pname">Web con usuarios</div>
+          <div class="pdesc">Login · área privada · CRM</div>
+        </div>
+        <div class="cell"><span class="amount"><span class="a">179</span> €</span><span class="per">/ mes</span></div>
+        <div class="cell featured"><span class="amount"><span class="a">249</span> €</span><span class="per">/ mes</span></div>
+        <div class="cell"><span class="amount"><span class="a">349</span> €</span><span class="per">/ mes</span></div>
+      </div>
+
+      <div class="pricing-foot">
+        <div>
+          <b style="color:var(--ink);">Basic:</b> monitorización + reinicios automáticos &nbsp;·&nbsp;
+          <b style="color:var(--ink);">Standard:</b> respuesta &lt; 4 h · 3 cambios/mes &nbsp;·&nbsp;
+          <b style="color:var(--ink);">Premium 24/7:</b> ilimitado + informes + reunión trimestral
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARISON ============ -->
+<section class="section reveal">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="section-eyebrow">Comparativa</span>
+        <h2 class="section-title">SaaSphere vs<br><span class="grad">la competencia.</span></h2>
+      </div>
+      <p class="section-sub">Las agencias tradicionales están pensadas para grandes presupuestos. SaaSphere cubre el hueco: autónomos, microempresas y pymes que necesitan presencia digital sin invertir 3.000 € de entrada.</p>
+    </div>
+
+    <div class="compare-grid">
+      <div class="head"></div>
+      <div class="head us">SaaSphere</div>
+      <div class="head">La Teva Web</div>
+      <div class="head">Apiumhub</div>
+
+      <div class="row-label">Precio de entrada</div>
+      <div class="cell-us"><b>Desde 59 €/mes</b></div>
+      <div>Desde 2.940 €</div>
+      <div>15.000 €–20.000 €</div>
+
+      <div class="row-label">Modelo</div>
+      <div class="cell-us">Suscripción · sin inversión</div>
+      <div>Proyecto a medida</div>
+      <div>Proyecto a medida</div>
+
+      <div class="row-label">Tiempo de despliegue</div>
+      <div class="cell-us">Horas (cooperación con IA)</div>
+      <div>Semanas</div>
+      <div>Meses</div>
+
+      <div class="row-label">Soporte automatizado por IA</div>
+      <div class="cell-us"><span class="yes">✓ LeIA 24/7</span></div>
+      <div><span class="no">✕</span></div>
+      <div><span class="no">✕</span></div>
+
+      <div class="row-label">Mantenimiento incluido</div>
+      <div class="cell-us"><span class="yes">✓ continuo</span></div>
+      <div>Contrato aparte</div>
+      <div>Contrato aparte</div>
+
+      <div class="row-label">Sin permanencia</div>
+      <div class="cell-us"><span class="yes">✓</span></div>
+      <div><span class="no">—</span></div>
+      <div><span class="no">—</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta-banner" id="cta">
+  <div class="container">
+    <div class="cta-card reveal">
+      <h2>¿Listo para <span class="grad">despegar</span>?</h2>
+      <p>Cuéntanos qué necesitas y en menos de 48 horas tienes tu web en producción. Sin inversión inicial. Sin sorpresas.</p>
+      <div class="ctas">
+        <a class="btn primary" href="#">Empezar ahora <span>→</span></a>
+        <a class="btn ghost" href="#">Hablar con ventas</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="#inicio">
+          <img src="SaaSphere-logo.png" alt="SaaSphere" class="brand-mark">
+          <span class="brand-name">Saa<span class="a">Sphere</span></span>
+        </a>
+        <p>Tu web profesional, gestionada por inteligencia artificial. Hecho con cuidado en Salamanca · 2026</p>
+        <div class="footer-social">
+          <a href="#" aria-label="GitHub"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.9 2.9 1.4 3.6 1 .1-.8.4-1.4.8-1.7-2.7-.3-5.5-1.3-5.5-6 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.5.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg></a>
+          <a href="#" aria-label="Twitter"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" aria-label="LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.5 2h-17A1.5 1.5 0 0 0 2 3.5v17A1.5 1.5 0 0 0 3.5 22h17a1.5 1.5 0 0 0 1.5-1.5v-17A1.5 1.5 0 0 0 20.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 1 1 8.3 6.5a1.78 1.78 0 0 1-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0 0 13 14.19a.66.66 0 0 0 0 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 0 1 2.7-1.4c1.55 0 3.36.86 3.36 3.66z"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Producto</h5>
+        <ul>
+          <li><a href="#servicios">Servicios</a></li>
+          <li><a href="#precios">Precios</a></li>
+          <li><a href="#leia">LeIA</a></li>
+          <li><a href="#arquitectura">Cómo funciona</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Empresa</h5>
+        <ul>
+          <li><a href="#">Nosotros</a></li>
+          <li><a href="#">Clientes</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contacto</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Recursos</h5>
+        <ul>
+          <li><a href="#">Documentación</a></li>
+          <li><a href="#">Estado del servicio</a></li>
+          <li><a href="#">Soporte</a></li>
+          <li><a href="#">Guías</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <ul>
+          <li><a href="#">Privacidad</a></li>
+          <li><a href="#">Términos</a></li>
+          <li><a href="#">Cookies</a></li>
+          <li><a href="#">Aviso legal</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div>© 2026 SaaSphere · Todos los derechos reservados</div>
+      <div class="status"><span class="dot"></span> Todos los sistemas operativos · uptime 99.99 %</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ Tweaks ============ -->
+<div id="tweaks">
+  <h4>// tweaks <button class="close-x" id="tweaksClose">×</button></h4>
+  <div class="row">
+    <label>Animaciones</label>
+    <div class="toggle-mini on" data-key="anim"></div>
+  </div>
+  <div class="row">
+    <label>Estrellas de fondo</label>
+    <div class="toggle-mini on" data-key="stars"></div>
+  </div>
+  <div class="row">
+    <label>Color acento</label>
+    <div class="swatches">
+      <span class="swatch active" data-blue="#1f6feb" data-bright="#4593ff" data-deep="#0a2a6b" data-cyan="#2dd4ff" data-glow="rgba(31,111,235,0.5)" data-glow-c="rgba(45,212,255,0.35)" style="background:#1f6feb;"></span>
+      <span class="swatch" data-blue="#2dd4ff" data-bright="#6bdfff" data-deep="#0e7490" data-cyan="#a5f3fc" data-glow="rgba(45,212,255,0.5)" data-glow-c="rgba(165,243,252,0.35)" style="background:#2dd4ff;"></span>
+      <span class="swatch" data-blue="#7c3aed" data-bright="#a78bfa" data-deep="#3b0764" data-cyan="#c4b5fd" data-glow="rgba(124,58,237,0.5)" data-glow-c="rgba(196,181,253,0.35)" style="background:#7c3aed;"></span>
+      <span class="swatch" data-blue="#10b981" data-bright="#34d399" data-deep="#064e3b" data-cyan="#6ee7b7" data-glow="rgba(16,185,129,0.5)" data-glow-c="rgba(110,231,183,0.35)" style="background:#10b981;"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ============ Nav scroll state ============
+  const navWrap = document.getElementById('navWrap');
+  function onScroll() {
+    navWrap.classList.toggle('scrolled', window.scrollY > 16);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  // ============ Mobile menu ============
+  const burger = document.getElementById('burger');
+  const mobileMenu = document.getElementById('mobileMenu');
+  const closeBtn = document.getElementById('closeBtn');
+  if (burger) burger.addEventListener('click', () => mobileMenu.classList.add('open'));
+  if (closeBtn) closeBtn.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  document.querySelectorAll('.mobile-menu a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+  // ============ Scroll reveal ============
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ============ Tweaks ============
+  const tweaks = document.getElementById('tweaks');
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === '__activate_edit_mode') tweaks.classList.add('open');
+    if (e.data.type === '__deactivate_edit_mode') tweaks.classList.remove('open');
+  });
+  window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+  document.getElementById('tweaksClose').addEventListener('click', () => {
+    tweaks.classList.remove('open');
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  });
+
+  document.querySelectorAll('#tweaks .toggle-mini').forEach(t => {
+    t.addEventListener('click', () => {
+      t.classList.toggle('on');
+      const key = t.dataset.key;
+      if (key === 'anim') document.body.classList.toggle('no-anim', !t.classList.contains('on'));
+      if (key === 'stars') {
+        const on = t.classList.contains('on');
+        document.querySelector('.cosmic-bg').style.setProperty('--bg-stars', on ? '1' : '0');
+        const cb = document.querySelector('.cosmic-bg');
+        if (cb) cb.style.opacity = on ? '1' : '0.5';
+        const before = document.querySelector('.cosmic-bg');
+        // toggle via class
+        document.body.classList.toggle('no-stars', !on);
+      }
+    });
+  });
+
+  // hide stars when class
+  const style = document.createElement('style');
+  style.textContent = 'body.no-stars .cosmic-bg::before { display: none; }';
+  document.head.appendChild(style);
+
+  document.querySelectorAll('#tweaks .swatch').forEach(s => {
+    s.addEventListener('click', () => {
+      document.querySelectorAll('#tweaks .swatch').forEach(x => x.classList.remove('active'));
+      s.classList.add('active');
+      const r = document.documentElement;
+      r.style.setProperty('--blue', s.dataset.blue);
+      r.style.setProperty('--blue-bright', s.dataset.bright);
+      r.style.setProperty('--blue-deep', s.dataset.deep);
+      r.style.setProperty('--cyan', s.dataset.cyan);
+      r.style.setProperty('--glow', s.dataset.glow);
+      r.style.setProperty('--glow-cyan', s.dataset['glow-c']);
+    });
+  });
+</script>
+
+<!-- ============ Enhanced Animations ============ -->
+<div id="scroll-bar"></div>
+<div id="cursor-glow"></div>
+
+<style>
+/* Scroll progress bar */
+#scroll-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--blue), var(--cyan), var(--blue-bright), var(--cyan));
+  background-size: 300% auto;
+  z-index: 9999;
+  pointer-events: none;
+  box-shadow: 0 0 10px var(--cyan-soft);
+  animation: barFlow 4s linear infinite;
+  transition: width 0.08s linear;
+}
+@keyframes barFlow { to { background-position: 300% center; } }
+
+/* Cursor ambient glow */
+#cursor-glow {
+  position: fixed;
+  width: 480px; height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(31,111,235,0.07) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+  left: -240px; top: -240px;
+  transition: left 0.15s ease, top 0.15s ease;
+  will-change: left, top;
+}
+
+/* Hero entrance: staggered fade-up */
+@keyframes heroEnter {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-copy > * {
+  opacity: 0;
+  animation: heroEnter 0.75s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.hero-copy > *:nth-child(1) { animation-delay: 0.12s; }
+.hero-copy > *:nth-child(2) { animation-delay: 0.26s; }
+.hero-copy > *:nth-child(3) { animation-delay: 0.40s; }
+.hero-copy > *:nth-child(4) { animation-delay: 0.54s; }
+.hero-copy > *:nth-child(5) { animation-delay: 0.68s; }
+.hero-visual {
+  opacity: 0;
+  animation: heroEnter 1s cubic-bezier(0.22,1,0.36,1) 0.28s forwards;
+}
+
+/* Gradient text shimmer */
+@keyframes gradShimmer {
+  from { background-position: 0% center; }
+  to   { background-position: 200% center; }
+}
+.hero-title .grad,
+.section-title .grad {
+  background-size: 200% auto;
+  animation: gradShimmer 5s linear infinite;
+}
+
+/* Card shine sweep on hover */
+.service-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255,255,255,0.055) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+  z-index: 4;
+}
+.service-card:hover::after { transform: translateX(120%); }
+.service-card:hover {
+  border-color: rgba(45,212,255,0.28);
+  box-shadow: 0 0 32px -8px rgba(45,212,255,0.18), 0 24px 60px -20px rgba(0,0,0,0.55);
+}
+
+/* Eyebrow badge subtle glow pulse */
+@keyframes badgePulse {
+  0%, 100% { box-shadow: none; }
+  50%       { box-shadow: 0 0 18px -4px var(--glow-cyan); }
+}
+.eyebrow { animation: badgePulse 4s ease-in-out infinite 1s; }
+
+/* Disable extras when no-anim is toggled */
+body.no-anim #scroll-bar,
+body.no-anim #cursor-glow { display: none; }
+body.no-anim .hero-copy > *,
+body.no-anim .hero-visual { opacity: 1 !important; animation: none !important; }
+body.no-anim .hero-title .grad,
+body.no-anim .section-title .grad,
+body.no-anim .eyebrow { animation: none !important; }
+body.no-anim .service-card::after { display: none; }
+</style>
+
+<script>
+(function () {
+  /* Scroll progress bar */
+  const bar = document.getElementById('scroll-bar');
+  function updateBar() {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = max > 0 ? (window.scrollY / max * 100) + '%' : '0%';
+  }
+  window.addEventListener('scroll', updateBar, { passive: true });
+
+  /* Cursor glow */
+  const glowEl = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove', e => {
+    glowEl.style.left = (e.clientX - 240) + 'px';
+    glowEl.style.top  = (e.clientY - 240) + 'px';
+  });
+
+  /* Animated counter for [data-counter] elements */
+  function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+  function startCounter(el) {
+    const target = parseFloat(el.dataset.counter);
+    const decimals = (String(target).split('.')[1] || '').length;
+    const dur = 2000;
+    const t0 = performance.now();
+    (function tick(now) {
+      const p = easeOut(Math.min((now - t0) / dur, 1));
+      el.textContent = (target * p).toFixed(decimals);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  }
+  const cObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { startCounter(e.target); cObs.unobserve(e.target); }
+    });
+  }, { threshold: 0.4 });
+  document.querySelectorAll('[data-counter]').forEach(el => {
+    el.textContent = '0';
+    cObs.observe(el);
+  });
+
+  /* 3D tilt on service cards */
+  document.querySelectorAll('.service-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      card.style.transform =
+        `perspective(700px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg) translateZ(6px)`;
+    });
+    card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+  });
+
+  /* Stagger transition-delay for children inside .reveal grids */
+  [
+    ['.services-grid > .service-card', 0.09],
+    ['.steps-grid > .step',            0.08],
+    ['.leia-features > .leia-feat',    0.07],
+  ].forEach(([sel, step]) => {
+    document.querySelectorAll(sel).forEach((el, i) => {
+      el.style.transitionDelay = (i * step) + 's';
+    });
+  });
+})();
+</script>
+
+<script>
+/* ============================================================
+   Liquid particle sphere — reusable
+   Fibonacci sphere, liquid radial oscillation, drops, rotation,
+   pointer reaction. Factory: createLiquidSphere(canvas, opts).
+   ============================================================ */
+(function () {
+  const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function createLiquidSphere(canvas, opts) {
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return null;
+    opts = opts || {};
+    const COUNT       = opts.count      || 2200;
+    const RADIUS_PCT  = opts.radiusPct  || 0.42;
+    const ALLOW_DROPS = opts.drops      !== false && !REDUCE;
+    const ALLOW_DRAG  = opts.drag       !== false;
+    const INTERACT_GLOBAL = !!opts.globalPointer; /* for nav: react to window cursor */
+    const AUTO_VEL_Y  = opts.autoVelY != null ? opts.autoVelY : 0.0035;
+    const BASE_ROT_X  = opts.baseRotX != null ? opts.baseRotX : -0.18;
+    const SIZE_SCALE  = opts.sizeScale != null ? opts.sizeScale : 1;
+
+    let W = 0, H = 0;
+    function resize() {
+      const rect = canvas.getBoundingClientRect();
+      W = Math.max(1, rect.width);
+      H = Math.max(1, rect.height);
+      canvas.width  = Math.floor(W * DPR);
+      canvas.height = Math.floor(H * DPR);
+      ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    }
+    new ResizeObserver(resize).observe(canvas);
+    resize();
+
+    /* fibonacci sphere distribution */
+    const PHI = Math.PI * (Math.sqrt(5) - 1);
+    const particles = new Array(COUNT);
+    for (let i = 0; i < COUNT; i++) {
+      const yy = 1 - (i / (COUNT - 1)) * 2;
+      const r2 = Math.sqrt(1 - yy * yy);
+      const th = PHI * i;
+      particles[i] = {
+        x0: Math.cos(th) * r2,
+        y0: yy,
+        z0: Math.sin(th) * r2,
+        phase: Math.random() * Math.PI * 2,
+        freq:  0.5 + Math.random() * 1.1,
+        amp:   0.010 + Math.random() * 0.030,
+        hueT:  Math.random(),
+        size:  0.6 + Math.random() * 1.6,
+        drop:  0,
+        dropV: 0,
+      };
+    }
+
+    let rotX = BASE_ROT_X, rotY = 0;
+    let velX = 0, velY = AUTO_VEL_Y;
+    let targetVelY = AUTO_VEL_Y;
+    let cosX = 1, sinX = 0, cosY = 1, sinY = 0;
+    function updateRot() {
+      cosX = Math.cos(rotX); sinX = Math.sin(rotX);
+      cosY = Math.cos(rotY); sinY = Math.sin(rotY);
+    }
+
+    let mouseX = -9999, mouseY = -9999, mouseIn = false;
+    let mouseNX = 0, mouseNY = 0;
+    let dragging = false, lastPX = 0, lastPY = 0;
+
+    function localFromGlobal(cx, cy) {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = cx - rect.left;
+      mouseY = cy - rect.top;
+      mouseNX = (mouseX / rect.width)  * 2 - 1;
+      mouseNY = (mouseY / rect.height) * 2 - 1;
+    }
+
+    function onPointerMove(e) {
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      localFromGlobal(cx, cy);
+      mouseIn = true;
+      if (dragging && ALLOW_DRAG) {
+        const dx = cx - lastPX;
+        const dy = cy - lastPY;
+        velY = dx * 0.006;
+        velX = dy * 0.006;
+        lastPX = cx; lastPY = cy;
+      }
+    }
+    function onPointerDown(e) {
+      if (!ALLOW_DRAG) return;
+      dragging = true;
+      lastPX = e.touches ? e.touches[0].clientX : e.clientX;
+      lastPY = e.touches ? e.touches[0].clientY : e.clientY;
+    }
+    function onPointerUp() { dragging = false; }
+    function onLeave() {
+      if (!INTERACT_GLOBAL) {
+        mouseIn = false; mouseX = -9999; mouseY = -9999;
+      }
+      dragging = false;
+    }
+
+    if (INTERACT_GLOBAL) {
+      window.addEventListener('mousemove', e => {
+        localFromGlobal(e.clientX, e.clientY);
+        mouseIn = true;
+      });
+    } else {
+      canvas.addEventListener('mousemove', onPointerMove);
+      canvas.addEventListener('mouseleave', onLeave);
+      canvas.addEventListener('touchstart', onPointerDown, { passive: true });
+      canvas.addEventListener('touchmove',  onPointerMove, { passive: true });
+      canvas.addEventListener('touchend',   onPointerUp);
+      if (ALLOW_DRAG) {
+        canvas.addEventListener('mousedown', onPointerDown);
+        window.addEventListener('mouseup',   onPointerUp);
+      }
+    }
+
+    let dropCooldown = 0.4;
+    function spawnDrop() {
+      for (let tries = 0; tries < 16; tries++) {
+        const p = particles[(Math.random() * COUNT) | 0];
+        const x1 = p.x0 * cosY + p.z0 * sinY;
+        const z1 = -p.x0 * sinY + p.z0 * cosY;
+        const wz = p.y0 * sinX + z1 * cosX;
+        if (wz > 0.25 && p.drop === 0 && p.dropV === 0) {
+          p.dropV = 0.014 + Math.random() * 0.028;
+          return;
+        }
+      }
+    }
+
+    function colorRGBA(z, hueT, glow) {
+      const t = (z + 1) * 0.5;
+      const r1 = lerp(31,  45,  hueT);
+      const g1 = lerp(111, 212, hueT);
+      const b1 = lerp(235, 255, hueT);
+      const k  = 0.30 + 0.70 * t;
+      const r  = (r1 * k) | 0;
+      const g  = (g1 * k) | 0;
+      const b  = (b1 * k) | 0;
+      let a = 0.16 + 0.82 * t + glow * 0.6;
+      if (z < -0.2) a *= Math.max(0, 1 + z * 1.2);
+      if (a > 1) a = 1;
+      return 'rgba(' + r + ',' + g + ',' + b + ',' + a.toFixed(3) + ')';
+    }
+
+    let t0 = performance.now();
+    let visible = true;
+    document.addEventListener('visibilitychange', () => {
+      visible = !document.hidden;
+      if (visible) { t0 = performance.now(); requestAnimationFrame(frame); }
+    });
+
+    function frame(now) {
+      if (!visible) return;
+      const dt = Math.min(50, now - t0) / 1000;
+      t0 = now;
+      const time = now / 1000;
+
+      if (mouseIn && !dragging) {
+        targetVelY = AUTO_VEL_Y + mouseNX * 0.008;
+        rotX += (-mouseNY * 0.32 - rotX) * 0.04;
+      } else {
+        targetVelY = AUTO_VEL_Y;
+        rotX += (BASE_ROT_X - rotX) * 0.015;
+      }
+      velY += (targetVelY - velY) * 0.05;
+      velX *= 0.93;
+      rotY += velY;
+      rotX += velX;
+      updateRot();
+
+      if (ALLOW_DROPS) {
+        dropCooldown -= dt;
+        while (dropCooldown <= 0) {
+          spawnDrop();
+          dropCooldown += 0.10 + Math.random() * 0.35;
+        }
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      const cx = W * 0.5;
+      const cy = H * 0.5;
+      const radius = Math.min(W, H) * RADIUS_PCT;
+      const fov = radius * 2.4;
+      const repR = radius * 0.32;
+      const repR2 = repR * repR;
+
+      ctx.globalCompositeOperation = 'lighter';
+
+      for (let i = 0; i < COUNT; i++) {
+        const p = particles[i];
+        const osc = Math.sin(time * p.freq + p.phase) * p.amp;
+        if (p.dropV !== 0 || p.drop !== 0) {
+          p.drop += p.dropV;
+          p.dropV -= 0.0009;
+          if (p.drop <= 0) { p.drop = 0; p.dropV = 0; }
+        }
+        const rr = 1 + osc + p.drop;
+        const x = p.x0 * rr, y = p.y0 * rr, z = p.z0 * rr;
+        const x1 = x * cosY + z * sinY;
+        const z1 = -x * sinY + z * cosY;
+        const y2 = y * cosX - z1 * sinX;
+        const z2 = y * sinX + z1 * cosX;
+        const persp = fov / (fov + z2 * radius);
+        let sx = cx + x1 * radius * persp;
+        let sy = cy + y2 * radius * persp;
+
+        let glow = 0;
+        if (mouseIn && !INTERACT_GLOBAL) {
+          const ddx = sx - mouseX, ddy = sy - mouseY;
+          const d2 = ddx * ddx + ddy * ddy;
+          if (d2 < repR2) {
+            const d = Math.sqrt(d2) + 0.0001;
+            const f = 1 - d / repR;
+            sx += (ddx / d) * f * 16;
+            sy += (ddy / d) * f * 16;
+            glow = f * 0.85;
+          }
+        }
+
+        const size = (p.size + glow * 1.6 + p.drop * 10) * persp * SIZE_SCALE;
+        ctx.fillStyle = colorRGBA(z2, p.hueT, glow);
+        ctx.beginPath();
+        ctx.arc(sx, sy, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.globalCompositeOperation = 'source-over';
+      requestAnimationFrame(frame);
+    }
+
+    updateRot();
+    requestAnimationFrame((t) => { t0 = t; frame(t); });
+    return { canvas };
+  }
+
+  /* hero — full sphere */
+  const minSide = Math.min(window.innerWidth, window.innerHeight);
+  const heroCount = REDUCE ? 500 : (minSide < 600 ? 1400 : minSide < 1000 ? 2000 : 2600);
+  createLiquidSphere(document.getElementById('logo-canvas'), {
+    count: heroCount,
+    drag: true,
+    drops: true,
+    radiusPct: 0.42,
+  });
+
+  /* nav — mini sphere, lighter, no drag, follows global cursor for tilt */
+  createLiquidSphere(document.getElementById('logo-canvas-nav'), {
+    count: REDUCE ? 240 : 700,
+    drag: false,
+    drops: !REDUCE,
+    globalPointer: true,
+    radiusPct: 0.45,
+    autoVelY: 0.0055,
+    sizeScale: 0.85,
+  });
+
+  /* section accents — declarative via data-sphere="accent" */
+  document.querySelectorAll('canvas[data-sphere="accent"]').forEach(el => {
+    const cnt = parseInt(el.dataset.count || '400', 10);
+    const rp  = parseFloat(el.dataset.radius || '0.4');
+    createLiquidSphere(el, {
+      count: REDUCE ? Math.min(cnt, 200) : cnt,
+      drag: false,
+      drops: false,
+      globalPointer: true,
+      radiusPct: rp,
+      autoVelY: 0.0028,
+      sizeScale: 0.9,
+    });
+  });
+})();
+</script>
+
+<script>
+/* ============================================================
+   Ambient particle field — anchored to the document
+   Canvas pintado en viewport (fixed) por rendimiento, pero las
+   partículas viven en coords del documento: al hacer scroll se
+   quedan en el sitio, no acompañan al usuario.
+   ============================================================ */
+(function () {
+  const canvas = document.getElementById('bg-particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d', { alpha: true });
+  if (!ctx) return;
+
+  const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DPR = Math.min(window.devicePixelRatio || 1, 2);
+  let VW = 0, VH = 0;     /* viewport */
+  let DH = 0;             /* document height */
+
+  function measureDoc() {
+    DH = Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0,
+      window.innerHeight
+    );
+  }
+
+  function resize() {
+    VW = window.innerWidth;
+    VH = window.innerHeight;
+    canvas.width  = Math.floor(VW * DPR);
+    canvas.height = Math.floor(VH * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    measureDoc();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  /* docHeight crece tras lazy reveal / fonts: re-medir un par de veces */
+  setTimeout(measureDoc, 500);
+  setTimeout(measureDoc, 1500);
+  window.addEventListener('load', measureDoc);
+
+  /* density relative to document area */
+  function targetCount() {
+    if (REDUCE) return 120;
+    const area = VW * Math.max(DH, VH);
+    return Math.min(900, Math.max(180, Math.round(area / 11000)));
+  }
+  let COUNT = targetCount();
+
+  const ps = new Array(COUNT);
+  for (let i = 0; i < COUNT; i++) {
+    ps[i] = {
+      x: Math.random() * VW,
+      y: Math.random() * Math.max(DH, VH),
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: (Math.random() - 0.5) * 0.18,
+      r: Math.random() * 1.4 + 0.4,
+      hueT: Math.random(),
+      tw: Math.random() * Math.PI * 2,
+    };
+  }
+
+  /* mouse in document coords */
+  let mxDoc = -9999, myDoc = -9999;
+  window.addEventListener('mousemove', e => {
+    mxDoc = e.clientX;
+    myDoc = e.clientY + window.scrollY;
+  });
+  window.addEventListener('mouseleave', () => { mxDoc = myDoc = -9999; });
+
+  const LINK_DIST = REDUCE ? 0 : 110;
+  const LINK_DIST2 = LINK_DIST * LINK_DIST;
+  const MOUSE_R = 160;
+  const MOUSE_R2 = MOUSE_R * MOUSE_R;
+
+  let t0 = performance.now();
+  let visible = true;
+  document.addEventListener('visibilitychange', () => {
+    visible = !document.hidden;
+    if (visible) { t0 = performance.now(); requestAnimationFrame(frame); }
+  });
+
+  function color(hueT, a) {
+    const r = (31 + (45 - 31) * hueT) | 0;
+    const g = (111 + (212 - 111) * hueT) | 0;
+    const b = (235 + (255 - 235) * hueT) | 0;
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a.toFixed(3) + ')';
+  }
+
+  /* re-used buffer of visible particles for cheap O(n²) line work */
+  const vis = [];
+
+  function frame(now) {
+    if (!visible) return;
+    const dt = Math.min(50, now - t0) / 16.667;
+    t0 = now;
+    const scrollY = window.scrollY;
+    const docH = Math.max(DH, VH);
+
+    ctx.clearRect(0, 0, VW, VH);
+    vis.length = 0;
+
+    for (let i = 0; i < COUNT; i++) {
+      const p = ps[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.tw += 0.02 * dt;
+
+      /* cursor pull (document coords) */
+      if (mxDoc > -1000) {
+        const dx = mxDoc - p.x, dy = myDoc - p.y;
+        const d2 = dx * dx + dy * dy;
+        if (d2 < MOUSE_R2) {
+          const f = (1 - Math.sqrt(d2) / MOUSE_R) * 0.06;
+          p.vx += dx * f * 0.001;
+          p.vy += dy * f * 0.001;
+        }
+      }
+      p.vx *= 0.995; p.vy *= 0.995;
+
+      /* wrap horizontally; vertical wraps over full doc height */
+      if (p.x < -10) p.x = VW + 10;
+      else if (p.x > VW + 10) p.x = -10;
+      if (p.y < -10) p.y = docH + 10;
+      else if (p.y > docH + 10) p.y = -10;
+
+      /* skip render if outside viewport */
+      const sy = p.y - scrollY;
+      if (sy < -20 || sy > VH + 20) continue;
+
+      const tw = 0.55 + 0.45 * Math.sin(p.tw);
+      ctx.fillStyle = color(p.hueT, 0.22 * tw);
+      ctx.beginPath();
+      ctx.arc(p.x, sy, p.r, 0, Math.PI * 2);
+      ctx.fill();
+
+      vis.push(p.x, sy, p.hueT);
+    }
+
+    if (LINK_DIST > 0) {
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.lineWidth = 1;
+      const n = vis.length / 3;
+      for (let i = 0; i < n; i++) {
+        const ax = vis[i*3], ay = vis[i*3+1], ah = vis[i*3+2];
+        for (let j = i + 1; j < n; j++) {
+          const bx = vis[j*3], by = vis[j*3+1];
+          const dx = ax - bx, dy = ay - by;
+          const d2 = dx * dx + dy * dy;
+          if (d2 < LINK_DIST2) {
+            const t = 1 - Math.sqrt(d2) / LINK_DIST;
+            ctx.strokeStyle = color((ah + vis[j*3+2]) * 0.5, 0.10 * t);
+            ctx.beginPath();
+            ctx.moveTo(ax, ay);
+            ctx.lineTo(bx, by);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame((t) => { t0 = t; frame(t); });
+})();
+</script>
+</body>
+</html>

@@ -14,10 +14,23 @@ htmlcov/
 ~$*
 *.docx.bak
 
-# Secretos (nunca commitear)
+# Secretos (nunca commitear). Solo .example permitido.
 .env
 .env.*
 !.env.example
+kubeconfig
+!kubeconfig.example
+*.key
+*.pem
+*.crt
+!**/example.crt
+
+# Configs con tokens embebidos — versionar solo el .example al lado.
+Sauron/opt/monitoring/alertmanager/alertmanager.yml
+Heimdall/etc/wireguard/*.conf
+!Heimdall/etc/wireguard/*.conf.example
+Matrix/etc/rancher/k3s/k3s.yaml
+!Matrix/etc/rancher/k3s/k3s.yaml.example
 
 # Estado local de herramientas IA
 .claude/
