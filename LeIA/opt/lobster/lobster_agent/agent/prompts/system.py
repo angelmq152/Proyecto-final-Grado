@@ -31,6 +31,17 @@ _MISSIONS: dict[CaseUse, str] = {
 }
 
 
+def _dry_run_instruction(context: Mapping[str, object] | None) -> list[str]:
+    if (context or {}).get("agent_mode") == "dry_run":
+        return [
+            "- El agente esta en MODO SIMULACION (dry_run). Las mutaciones no se aplican "
+            "realmente. Cuando una accion devuelva ABORTED_DRY_RUN, comunica al operador "
+            "que esta en modo simulacion, describe la accion que se habria ejecutado y su "
+            "efecto esperado, y recuerdale que puede cambiar el modo con /resume."
+        ]
+    return []
+
+
 def build_system_prompt(case_use: CaseUse, context: Mapping[str, object] | None = None) -> str:
     context_lines = []
     for key, value in (context or {}).items():
@@ -40,22 +51,48 @@ def build_system_prompt(case_use: CaseUse, context: Mapping[str, object] | None 
     case_specific_instructions = []
     if case_use in {CaseUse.HEALTH_LOOP_READ, CaseUse.HEALTH_LOOP_ANALYZE}:
         case_specific_instructions += [
-            "- Cluster K3s real: matrix (control-plane + workloads, host principal) y "
-            "fallback (cold standby, tainted saasphere/role=fallback:NoSchedule). "
-            "Los otros hosts (leia, sauron, heimdall) son targets externos de "
-            "monitorizacion, NO son nodos del cluster — no intentes pinar a ellos.",
-            "- Politica de fallback: el nodo fallback solo se activa cuando matrix "
-            "esta saturado o caido. No es un nodo de balanceo regular. Una vez "
-            "matrix recupera, devuelve los workloads con unpin.",
+            "- Cluster K3s: leia (control-plane, corre el API server, NUNCA recibe workloads de tenants), "
+            "matrix (worker principal, recibe toda la carga), "
+            "fallback (worker cold-standby, solo actua si matrix no puede). "
+            "sauron y heimdall son targets externos de monitorizacion, NO son nodos del cluster.",
+            "- Politica de scheduling: los manifests tienen preferredDuringScheduling "
+            "con weight=100 hacia matrix — los nuevos pods van a matrix por defecto y "
+            "solo caen a fallback si matrix no puede alojarlos. "
+            "El storage SMB (smb-saasphere) es accesible desde ambos nodos. "
+            "pin_deployment_to_node es AUTONOMO: ejecutalo directamente cuando matrix "
+            "este saturado o caido y fallback este disponible.",
             "- pin_deployment_to_node lee las taints del nodo destino y anyade las "
             "tolerations necesarias automaticamente (incluida la del fallback). No "
             "necesitas patchear tolerations a mano.",
             "- unpin_deployment_from_node quita el nodeSelector y las tolerations "
             "saasphere/* anyadidas por pin. Las tolerations originales del deployment "
             "se preservan.",
-            "- Si fallback tambien esta bajo presion (segun get_node_health), notifica "
-            "al operador y NO actues. Es la regla de seguridad mas importante.",
+            "- is_node_alive distingue tres casos mediante el campo api_available: "
+            "(1) alive=True, api_available=True: nodo sano, API K8s operativa. "
+            "(2) alive=True, api_available=False: nodo ENCENDIDO y alcanzable por red, "
+            "pero el servicio k3s de leia (control-plane) no responde. "
+            "NUNCA digas 'fallback inoperable' ni 'inoperancia de fallback' — el nodo esta vivo. "
+            "(3) alive=False, api_available=False: nodo verdaderamente apagado o sin red. "
+            "NOTA: cuando matrix cae como worker, la API (en leia) sigue operativa — "
+            "is_node_alive('matrix') devolvera alive=False, api_available=True.",
+            "- Si ambos workers estan bajo presion de RECURSOS (cpu_pct o memory_pct altos "
+            "segun get_node_health), notifica al operador y NO actues. "
+            "Esta regla aplica a presion de recursos, no a api_available=False.",
+            "- RECUPERACION: llama list_deployments en CADA ciclo. Si algun deployment "
+            "tiene node_selector={'kubernetes.io/hostname': 'fallback'} Y matrix esta vivo "
+            "(alive=True, api_available=True segun is_node_alive), eso ES una anomalia — "
+            "reportala como '[ANOMALIA] workloads pinados a fallback con matrix recuperado'. "
+            "En HEALTH_LOOP_ANALYZE: llama unpin_deployment_from_node para cada uno. "
+            "Es AUTONOMO — no requiere aprobacion.",
         ]
+    if case_use in {CaseUse.CHAT, CaseUse.CONVERSATION, CaseUse.THINK,
+                    CaseUse.ALERT_REACTIVE, CaseUse.HEALTH_LOOP_ANALYZE}:
+        case_specific_instructions.append(
+            "- NUNCA escribas llamadas a herramientas como texto plano "
+            "(ej: get_recent_errors(service='nginx')). Si necesitas invocar "
+            "una herramienta, hazlo como tool call real. En texto no tienen "
+            "ningún efecto."
+        )
     if case_use in {CaseUse.CHAT, CaseUse.CONVERSATION, CaseUse.THINK}:
         case_specific_instructions.append(
             "- When the user asks to restart a pod or fix a crashing pod, always "
@@ -116,10 +153,18 @@ def build_system_prompt(case_use: CaseUse, context: Mapping[str, object] | None 
             "- pause_tenant y resume_tenant son para hibernar/despertar tenants.",
             "- delete_tenant requiere que el usuario repita el namespace exacto como confirmacion.",
             "- Para migrar un deployment a un nodo especifico: pin_deployment_to_node "
-            "(NORMAL, requiere aprobacion). Para liberar el pin: "
+            "(AUTONOMO, no requiere aprobacion). Para liberar el pin: "
             "unpin_deployment_from_node (AUTONOMO).",
             "- Si no tienes la herramienta necesaria, llama a request_new_tool"
             " para registrar la carencia.",
+            *_dry_run_instruction(context),
+            "- Cuando una herramienta devuelve ABORTED_POLICY o 'forbidden': "
+            "la operacion ha sido bloqueada intencionadamente por la politica de "
+            "seguridad. Informa al operador del motivo concreto y dile como hacerlo "
+            "por el canal correcto si existe (ej: los Secrets no se crean via agente "
+            "— usar 'kubectl create secret generic <nombre> --from-literal=<clave>=<valor> "
+            "-n <namespace>' directamente). No ofrezcas alternativas que consigan el "
+            "mismo efecto ni reintentes la operacion.",
             *case_specific_instructions,
             "",
             "Estado actual:",

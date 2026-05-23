@@ -130,7 +130,7 @@ async def test_pause_and_resume_change_state(tmp_path) -> None:
     settings, _repo_factory, state_factory, notifier, engine, *_ = await _ctx(tmp_path)
     await handle_pause(FakeMessage("/pause prueba"), settings, state_factory, notifier)
     state_repo = await state_factory()
-    assert (await state_repo.get()).mode == AgentMode.DRY_RUN
+    assert (await state_repo.get()).mode == AgentMode.PAUSED
 
     await handle_resume(FakeMessage("/resume"), settings, state_factory, notifier)
     assert (await state_repo.get()).mode == AgentMode.NORMAL

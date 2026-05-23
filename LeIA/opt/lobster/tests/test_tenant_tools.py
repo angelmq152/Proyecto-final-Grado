@@ -1,6 +1,7 @@
 from collections.abc import Awaitable, Callable
 from types import SimpleNamespace
 from typing import Any, cast
+from unittest.mock import patch
 
 import yaml
 from pydantic_ai import RunContext
@@ -348,44 +349,13 @@ def _pvc(name: str, phase: str) -> dict[str, Any]:
     return {"metadata": {"name": name}, "status": {"phase": phase}}
 
 
-async def test_deploy_static_site_message_includes_node_and_path() -> None:
-    k8s = FakeK8sClient()
-    k8s.storage_response = {
-        "path": "/var/lib/rancher/k3s/storage/pvc-abc_tenant-x_tenant-x-html",
-        "node": "matrix",
-        "pv_name": "pvc-abc",
-    }
+async def test_deploy_static_site_message_includes_leia_path() -> None:
     mutations = FakeMutationContext()
 
-    result = await deploy_tenant(_ctx(k8s, mutations), "static_site", "tenant-x")
+    result = await deploy_tenant(_ctx(FakeK8sClient(), mutations), "static_site", "tenant-x")
 
-    assert "mount: /usr/share/nginx/html" in result
-    expected_target = (
-        "scp target: matrix:/var/lib/rancher/k3s/storage/pvc-abc_tenant-x_tenant-x-html"
-    )
-    assert expected_target in result
-
-
-async def test_deploy_static_site_message_falls_back_to_kubectl_cp_when_path_unknown() -> None:
-    k8s = FakeK8sClient()
-    k8s.storage_response = {"path": None, "node": None, "pv_name": None}
-    mutations = FakeMutationContext()
-
-    result = await deploy_tenant(_ctx(k8s, mutations), "static_site", "tenant-x")
-
-    assert "kubectl cp ./index.html tenant-x/" in result
-    assert "/usr/share/nginx/html/index.html" in result
-
-
-async def test_deploy_static_site_aborts_when_pvc_does_not_bind() -> None:
-    k8s = FakeK8sClient()
-    k8s.pvc_bound = False
-    mutations = FakeMutationContext()
-
-    result = await deploy_tenant(_ctx(k8s, mutations), "static_site", "tenant-x")
-
-    assert "did not bind" in result
-    assert k8s.deleted_namespaces == ["tenant-x"]
+    assert "leia" in result.lower() or "/srv/k3s-pvs" in result
+    assert "tenant-x" in result
 
 
 def test_pv_node_extracts_hostname_from_node_affinity_dict() -> None:

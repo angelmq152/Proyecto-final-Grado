@@ -49,6 +49,9 @@ class MutationContext:
         self._dry_run_default = dry_run_default
         self._enforce_resource_limits = enforce_resource_limits
 
+    def set_dry_run(self, enabled: bool) -> None:
+        self._dry_run_default = enabled
+
     async def execute(
         self,
         action_type: str,

@@ -73,6 +73,18 @@ tags: [operacion, troubleshooting, errores, debug]
 | SQLite WAL no checkpointing | `du -h /var/lib/lobster/state.db*` | `sqlite3 state.db "PRAGMA wal_checkpoint(TRUNCATE);"` |
 | Modelo de Ollama cargado | nada que ver con Lobster process | Ollama se gestiona separado |
 
+### "Static site nuevo devuelve 403 Nginx"
+
+| Causa | Comprobación | Remedio |
+|---|---|---|
+| Sin `index.html` aún subido | `ls /srv/k3s-pvs/lobster-static/<name>/html/` | `scp ./index.html angel@leia:/srv/k3s-pvs/lobster-static/<name>/html/` |
+| Pod ve directorio vacío | `kubectl exec -n <name> deploy/<name> -- ls /usr/share/nginx/html/` | Si está vacío y el host SÍ tiene archivos, mira el siguiente caso |
+| PVC sin bind | `kubectl get pvc -n <name>` | Debe estar `Bound` con `STORAGECLASS=smb-lobster-static` |
+| PVC ligada a StorageClass antigua | `kubectl get pvc -o yaml ...` | Migrar siguiendo el postmortem |
+| Pod programado en LeIA | `kubectl get pod -n <name> -o wide` | Falta nodeAffinity `saasphere.io/workload=true` — revisa la plantilla |
+
+> Ver postmortem completo en [[../09-Tenants/07-Postmortem-Static-Site-SMB]].
+
 ## 🔍 Comandos diagnóstico rápidos
 
 ```bash
@@ -126,6 +138,88 @@ lobster_loki_queue_size
 
 # Aprobaciones acumulándose?
 lobster_approvals_pending
+```
+
+### Problemas con K3s en los nodos
+
+#### Puerto 6444 retenido (proceso zombie)
+
+| Causa | Comprobación | Remedio |
+|---|---|---|
+| `k3s.service` standalone dejó `kube-apiserver` como zombie | `sudo ss -tlnp \| grep 6444` | `sudo fuser -k 6444/tcp` y luego arrancar el servicio correcto |
+| k3s-agent no arranca en matrix | `sudo journalctl -u k3s-agent -n 50` | Verificar que `k3s.service` está parado y deshabilitado; `sudo systemctl disable --now k3s` |
+
+```bash
+# Diagnóstico de puertos ocupados en matrix (ejecutar como root en 192.168.1.202)
+sudo ss -tlnp | grep -E "6443|6444"
+sudo systemctl status k3s k3s-agent
+```
+
+#### TLS mismatch tras restart de k3s
+
+| Causa | Comprobación | Remedio |
+|---|---|---|
+| k3s regeneró certificados al reiniciar | `kubectl get nodes` → `x509: certificate signed by unknown authority` | El kubeconfig de Lobster apunta a `https://192.168.1.200:6443` (leia); si leia no se reinició, el certificado no cambia |
+| Kubeconfig con IP incorrecta | `grep server /etc/lobster/kubeconfig` | Debe ser `https://192.168.1.200:6443` — si es `.202`, corregir con `sed -i` |
+
+```bash
+# Verificar la IP en el kubeconfig de Lobster
+grep server /etc/lobster/kubeconfig
+# Respuesta esperada: server: https://192.168.1.200:6443
+
+# Verificar que la API responde
+curl -k https://192.168.1.200:6443/healthz
+# → ok
+```
+
+#### Kubeconfig apuntando al nodo equivocado
+
+> [!danger] Si /etc/lobster/kubeconfig apunta a matrix (192.168.1.202:6443) en lugar de a leia (192.168.1.200:6443), Lobster pierde toda conectividad K8s cuando matrix cae — exactamente el escenario en el que más falta hace el agente.
+
+```bash
+# Síntoma: Lobster no puede ver nodos cuando matrix está apagado
+kubectl --kubeconfig=/etc/lobster/kubeconfig get nodes
+# → connection refused / no route to host
+
+# Corrección:
+sudo sed -i 's|https://192.168.1.202:6443|https://192.168.1.200:6443|g' \
+  /etc/lobster/kubeconfig
+
+# Verificación:
+kubectl --kubeconfig=/etc/lobster/kubeconfig get nodes
+# → leia (control-plane), matrix, fallback todos Ready
+```
+
+> Ver postmortem completo en [[09-Postmortem-Failover-Kubeconfig-2026-05-23]].
+
+#### Conflicto k3s-server vs k3s-agent en el mismo nodo
+
+| Causa | Comprobación | Remedio |
+|---|---|---|
+| Nodo worker tiene tanto `k3s.service` como `k3s-agent.service` activos | `sudo systemctl is-active k3s k3s-agent` | Parar y deshabilitar `k3s.service`; solo debe correr `k3s-agent` en workers |
+
+```bash
+# En matrix (192.168.1.202) — solo debe correr k3s-agent:
+sudo systemctl stop k3s
+sudo systemctl disable k3s
+sudo systemctl status k3s-agent
+```
+
+### "Lobster detecta nodo como inoperable pero el nodo está encendido"
+
+| Causa | Comprobación | Remedio |
+|---|---|---|
+| `is_node_alive` devuelve `api_available=False` | `grep api_available` en los logs | El nodo está encendido pero la API K8s no responde — revisar k3s en leia |
+| LLM dice "fallback inoperable" | Ver respuesta en Telegram | Bug de prompt resuelto — actualizar a versión ≥ 2026-05-23 |
+
+```bash
+# Verificar que el API server de k3s está corriendo en LeIA
+sudo systemctl status k3s
+curl -k https://192.168.1.200:6443/healthz
+# → ok
+
+# Ver el último ciclo de health_loop y su diagnóstico de nodos
+uv run lobster decisions list --limit 5
 ```
 
 ## 🔁 Recuperación tras incidencia

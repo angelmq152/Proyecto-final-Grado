@@ -5,25 +5,26 @@ tags: [operacion, telegram, comandos]
 
 # 📱 Telegram · Comandos operativos
 
+
 > [!abstract] El control desde el móvil
 > Toda la operación que el autor hace en movilidad. Solo los `allowed_user_ids` pueden ejecutar comandos. Mensajes no autorizados se ignoran (con log warning).
 
 ## 🚏 Tabla rápida
 
-| Comando | Acción |
-|---|---|
-| `/start` | Saludo y ayuda básica |
-| `/help` | Lista completa de comandos |
-| `/status` | Modo, pendientes y última decisión |
-| `/pending` | Aprobaciones pendientes |
-| `/show <id>` | Detalle de una aprobación (id completo o prefijo 8 chars) |
-| `/pause [razón]` | Pasa a modo `dry_run` |
-| `/resume` | Vuelve a modo `normal` |
-| `/kill [razón]` | Pasa a modo `paused` (LLM detenido) |
-| `/think <pregunta>` | Razonamiento profundo (qwen3:32b + think) |
-| `/forget` | Borra historial del chat |
-| `/toolrequests` | Lista solicitudes de herramientas pendientes |
-| Texto libre | Enrutado como `CaseUse.CHAT` |
+| Comando             | Acción                                                    |
+| ------------------- | --------------------------------------------------------- |
+| `/start`            | Saludo y ayuda básica                                     |
+| `/help`             | Lista completa de comandos                                |
+| `/status`           | Modo, pendientes y última decisión                        |
+| `/pending`          | Aprobaciones pendientes                                   |
+| `/show <id>`        | Detalle de una aprobación (id completo o prefijo 8 chars) |
+| `/pause [razón]`    | Pasa a modo `dry_run`                                     |
+| `/resume`           | Vuelve a modo `normal`                                    |
+| `/kill [razón]`     | Pasa a modo `paused` (LLM detenido)                       |
+| `/think <pregunta>` | Razonamiento profundo (qwen3:32b + think)                 |
+| `/forget`           | Borra historial del chat                                  |
+| `/toolrequests`     | Lista solicitudes de herramientas pendientes              |
+| Texto libre         | Enrutado como `CaseUse.CHAT`                              |
 
 ## 🎯 Texto libre vs comandos
 

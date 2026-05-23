@@ -7,7 +7,9 @@ from lobster_agent.agent.tools.mutations.k8s import (
     update_configmap,
 )
 from lobster_agent.agent.tools.mutations.node import (
+    cordon_node,
     pin_deployment_to_node,
+    uncordon_node,
     unpin_deployment_from_node,
 )
 from lobster_agent.agent.tools.mutations.tenant import (
@@ -25,6 +27,8 @@ __all__ = [
     "restart_pod",
     "scale_deployment",
     "update_configmap",
+    "cordon_node",
+    "uncordon_node",
     "pin_deployment_to_node",
     "unpin_deployment_from_node",
     "deploy_tenant",

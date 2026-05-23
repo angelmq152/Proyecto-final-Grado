@@ -9,18 +9,6 @@ metadata:
     saasphere.io/owner: "{{ owner | default('admin', true) }}"
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: {{ name }}-html
-  namespace: {{ name }}
-spec:
-  accessModes: ["ReadWriteOnce"]
-  storageClassName: local-path
-  resources:
-    requests:
-      storage: {{ limits.storage }}
----
-apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: {{ name }}-quota
@@ -31,8 +19,19 @@ spec:
     limits.cpu: "{{ limits.cpu_limit }}"
     requests.memory: "{{ limits.memory_request }}"
     limits.memory: "{{ limits.memory_limit }}"
-    persistentvolumeclaims: "1"
-    requests.storage: "{{ limits.storage }}"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ name }}-html
+  namespace: {{ name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: smb-lobster-static
+  resources:
+    requests:
+      storage: {{ limits.storage }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -41,6 +40,8 @@ metadata:
   namespace: {{ name }}
 spec:
   replicas: {{ limits.replicas }}
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: {{ name }}
@@ -49,6 +50,21 @@ spec:
       labels:
         app: {{ name }}
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["matrix"]
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: saasphere.io/workload
+                    operator: In
+                    values: ["true"]
       containers:
         - name: nginx
           image: nginx:alpine

@@ -14,6 +14,13 @@ from lobster_agent.domain.severity import ActionSeverity
 from lobster_agent.domain.tenants import TIER_LIMITS, TenantTier, TenantType
 
 DNS_1123_LABEL = re.compile(r"^[a-z0-9]([-a-z0-9]{0,61}[a-z0-9])?$")
+STATIC_TENANT_PATH = "/srv/k3s-pvs/lobster-static/{name}/html"
+_PLACEHOLDER_HTML = (
+    "<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"UTF-8\">"
+    "<title>{name}</title></head><body><h1>{name}</h1>"
+    "<p>Tenant desplegado. Sustituye este index.html con tu contenido.</p>"
+    "</body></html>\n"
+)
 
 
 class MutationContextLike(Protocol):
@@ -110,34 +117,23 @@ async def deploy_tenant(
     }
 
     async def executor() -> dict[str, Any]:
+        namespace_created = False
         try:
             applied: list[dict[str, str]] = []
             for resource in _dependency_order(resources):
                 applied.append(await ctx.deps.k8s.apply_manifest(yaml.safe_dump(resource)))
-            host_path: str | None = None
-            host_node: str | None = None
-            pv_name: str | None = None
+                if resource.get("kind") == "Namespace":
+                    namespace_created = True
+            html_path: str | None = None
             if parsed_type == TenantType.STATIC_SITE:
-                pvc_name = f"{name}-html"
-                bound = await ctx.deps.k8s.wait_for_pvc_bound(name, pvc_name, timeout_seconds=120)
-                if not bound:
-                    raise K8sClientError(
-                        f"PVC {name}/{pvc_name} did not bind within 120s; "
-                        "check the local-path provisioner and that the deployment pod scheduled"
-                    )
-                storage = await ctx.deps.k8s.get_pvc_storage_path(name, pvc_name)
-                host_path = storage.get("path")
-                host_node = storage.get("node")
-                pv_name = storage.get("pv_name")
-            return {
-                "applied": applied,
-                "url": f"https://{hostname}",
-                "host_path": host_path,
-                "host_node": host_node,
-                "pv_name": pv_name,
-            }
+                html_path = STATIC_TENANT_PATH.format(name=name)
+            return {"applied": applied, "url": f"https://{hostname}", "html_path": html_path}
         except Exception:
-            await ctx.deps.k8s.delete_namespace(name)
+            if namespace_created:
+                try:
+                    await ctx.deps.k8s.delete_namespace(name)
+                except Exception:
+                    pass
             raise
 
     result = await cast(MutationContextLike, ctx.deps.mutation_context).execute(
@@ -311,6 +307,7 @@ async def verify_tenant_health(ctx: RunContext[AgentDeps], namespace: str) -> st
     return f"warning: tenant {namespace} health issues: {data}"
 
 
+
 def _deploy_message(
     tenant_type: TenantType,
     hostname: str,
@@ -319,20 +316,13 @@ def _deploy_message(
 ) -> str:
     url = f"https://{hostname}"
     if tenant_type == TenantType.STATIC_SITE:
-        payload = data or {}
-        host_path = payload.get("host_path")
-        host_node = payload.get("host_node")
-        if host_path and host_node:
-            target = f"scp target: {host_node}:{host_path}"
-        elif host_path:
-            target = f"scp target: <node>:{host_path}"
-        else:
-            target = (
-                f"kubectl cp ./index.html {name}/$(kubectl get pod -n {name} "
-                f"-l app={name} -o jsonpath='{{.items[0].metadata.name}}'):"
-                "/usr/share/nginx/html/index.html"
-            )
-        return f"tenant deployed: {url}; mount: /usr/share/nginx/html; {target}"
+        html_path = (data or {}).get("html_path") or STATIC_TENANT_PATH.format(name=name)
+        return (
+            f"tenant deployed: {url}\n"
+            f"Carpeta en LeIA: {html_path}/\n"
+            f"Sube tu index.html ahí (`scp ./index.html angel@leia:{html_path}/`) "
+            f"y nginx lo sirve al instante."
+        )
     if tenant_type == TenantType.WORDPRESS:
         return f"tenant deployed: {url}; admin: {url}/wp-admin"
     return f"tenant deployed: {url}; namespace: {name}"

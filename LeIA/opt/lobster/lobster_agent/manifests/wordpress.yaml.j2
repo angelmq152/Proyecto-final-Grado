@@ -24,7 +24,7 @@ metadata:
   namespace: {{ name }}
 spec:
   accessModes: ["ReadWriteOnce"]
-  storageClassName: local-path
+  storageClassName: smb-saasphere
   resources:
     requests:
       storage: {{ limits.storage }}
@@ -36,7 +36,7 @@ metadata:
   namespace: {{ name }}
 spec:
   accessModes: ["ReadWriteOnce"]
-  storageClassName: local-path
+  storageClassName: smb-saasphere
   resources:
     requests:
       storage: {{ limits.storage }}
@@ -70,6 +70,21 @@ spec:
       labels:
         app: mariadb
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["matrix"]
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: saasphere.io/workload
+                    operator: In
+                    values: ["true"]
       containers:
         - name: mariadb
           image: mariadb:10.11
@@ -131,6 +146,21 @@ spec:
       labels:
         app: wordpress
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["matrix"]
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: saasphere.io/workload
+                    operator: In
+                    values: ["true"]
       containers:
         - name: wordpress
           image: wordpress:latest

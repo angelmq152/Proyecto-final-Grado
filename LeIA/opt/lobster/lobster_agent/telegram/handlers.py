@@ -156,9 +156,9 @@ async def handle_pause(
     reason = _command_arg(getattr(message, "text", "")) or "telegram_pause"
     repo = await agent_state_repo_factory()
     user = getattr(message, "from_user", None)
-    await repo.set_mode(AgentMode.DRY_RUN, reason, getattr(user, "id", None))
-    await message.answer(esc("🟡 Modo cambiado a dry_run."), parse_mode=_MDV2)
-    await notifier.send_alert("🟡 Modo cambiado a dry_run")
+    await repo.set_mode(AgentMode.PAUSED, reason, getattr(user, "id", None))
+    await message.answer(esc("🔴 Modo cambiado a paused."), parse_mode=_MDV2)
+    await notifier.send_alert("🔴 Modo cambiado a paused")
 
 
 async def handle_resume(

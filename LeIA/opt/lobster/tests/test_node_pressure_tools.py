@@ -170,7 +170,7 @@ async def test_pin_deployment_to_fallback_adds_toleration() -> None:
     assert len(mutation_ctx.calls) == 1
     call = mutation_ctx.calls[0]
     assert call["action_type"] == "pin_deployment_to_node"
-    assert call["severity_override"] == ActionSeverity.NORMAL
+    assert call["severity_override"] is None
     assert len(k8s.calls) == 1
     method, args = k8s.calls[0]
     assert method == "patch_deployment_placement"

@@ -131,6 +131,12 @@ def _deployment_info_from_deployment(deployment: object) -> DeploymentInfo:
     metadata = _get_attr(deployment, "metadata")
     spec = _get_attr(deployment, "spec")
     status = _get_attr(deployment, "status")
+    template = _get_attr(spec, "template")
+    pod_spec = _get_attr(template, "spec")
+    raw_selector = _get_attr(pod_spec, "nodeSelector", "node_selector")
+    node_selector: dict[str, str] | None = None
+    if isinstance(raw_selector, dict) and raw_selector:
+        node_selector = {str(k): str(v) for k, v in raw_selector.items()}
     return DeploymentInfo(
         namespace=_metadata_namespace(metadata),
         name=_metadata_name(metadata),
@@ -139,6 +145,7 @@ def _deployment_info_from_deployment(deployment: object) -> DeploymentInfo:
             _get_attr(status, "availableReplicas", "available_replicas")
         ),
         ready_replicas=_int_or_none(_get_attr(status, "readyReplicas", "ready_replicas")),
+        node_selector=node_selector,
     )
 
 

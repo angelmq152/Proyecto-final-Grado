@@ -7,16 +7,16 @@ aliases: [Topología, SaaSphere homelab]
 # 🖧 Topología del homelab SaaSphere
 
 > [!abstract] La cara física del proyecto
-> SaaSphere se reparte sobre 5 hosts físicos/virtuales. Dos son **nodos K3s** (matrix + fallback). Los otros tres son **infra externa** (LeIA = agente + IA, Sauron = observabilidad, Heimdall = edge).
+> SaaSphere se reparte sobre 5 hosts físicos/virtuales. **LeIA** actúa como control-plane del clúster K3s y aloja el agente Lobster. **Matrix** y **fallback** son los nodos worker donde corren las cargas de trabajo de los tenants. Los otros dos hosts son infraestructura externa: Sauron (observabilidad) y Heimdall (edge/DNS).
 
 ## 🧭 Hosts y roles
 
 | Host | IP | Rol | Servicios principales |
 |---|---|---|---|
-| **LeIA** | `192.168.1.200` | Cerebro IA | Lobster (FastAPI :8080), Ollama (:11434) |
+| **LeIA** | `192.168.1.200` | K3s control-plane + cerebro IA | Lobster (FastAPI :8080), Ollama (:11434), k3s server |
 | **Sauron** | `192.168.1.201` | Observabilidad | Prometheus :9090, Alertmanager :9093, Loki :3100, Grafana |
-| **Matrix** | `192.168.1.202` | Clúster K3s | control-plane + workloads de tenants |
-| **Fallback** | (local) | K3s standby | worker tainted `saasphere/role=fallback:NoSchedule` |
+| **Matrix** | `192.168.1.202` | K3s worker principal | k3s-agent, workloads de tenants |
+| **Fallback** | (local) | K3s worker cold-standby | k3s-agent tainted `saasphere/role=fallback:NoSchedule` |
 | **Heimdall** | (edge) | Proxy / DNS | Traefik / `*.saasphere.local` |
 
 ## 🗺️ Diagrama lógico
@@ -42,16 +42,18 @@ flowchart TB
       GR[Grafana]
     end
 
+    subgraph leia_k3s[LeIA · k3s server]
+      KS[K3s API server\n:6443]
+    end
+
     subgraph matrix[Matrix · 192.168.1.202]
-      KS[K3s control-plane]
-      KU[traefik, coredns, metrics-server]
+      KA[k3s-agent]
       TN[(Tenants\nnamespaces tenant-*)]
-      KS --> KU
-      KS --> TN
+      KA --> TN
     end
 
     subgraph fallback[Fallback]
-      KFW[K3s worker tainted]
+      KFW[k3s-agent tainted]
     end
 
     Heimdall[Heimdall edge\n*.saasphere.local]
@@ -59,7 +61,9 @@ flowchart TB
     Internet --> Heimdall
     Heimdall --> matrix
 
-    OC -->|kubeconfig\n443/tcp| KS
+    OC -->|kubeconfig\n:6443/tcp| KS
+    KS -.->|controla| KA
+    KS -.->|controla| KFW
     OC -->|GET /api/v1/query\nHTTP| PR
     OC -->|GET /loki/api/v1/query_range\nHTTP| LO
     OC -->|GET /api/v2/alerts\nHTTP| AM
@@ -74,20 +78,21 @@ flowchart TB
 > [!info] Política de pinning
 > El nodo **fallback** lleva el taint `saasphere/role=fallback:NoSchedule`. Los pods NO se planifican ahí salvo que se haga `pin_deployment_to_node('fallback')`. Cuando matrix se recupera, `unpin_deployment_from_node` libera el deployment para que K8s vuelva a programarlo donde quiera.
 
-> [!warning] Hosts que NO son nodos K3s
-> Los hosts `leia`, `sauron` y `heimdall` aparecen en métricas de Prometheus como **targets externos** (node-exporter). **No son nodos del clúster**. Si pides al agente que "muévalo a sauron" se negará: solo `matrix` y `fallback` son schedulables.
+> [!warning] Hosts que NO son nodos K3s schedulables
+> Los hosts `sauron` y `heimdall` aparecen en métricas de Prometheus como **targets externos** (node-exporter). **No son nodos del clúster**. `leia` sí es un nodo del clúster (control-plane) pero lleva el taint `node-role.kubernetes.io/master:NoSchedule` — los workloads de tenants no aterrizan ahí. Si pides al agente que "muévalo a sauron" se negará: solo `matrix` y `fallback` son schedulables para cargas de tenant.
 
 ## 🔐 Acceso desde LeIA al clúster
 
 - `K8sConfig.kubeconfig_path = "/etc/lobster/kubeconfig"` (default).
-- Es un kubeconfig **read-only por defecto** + verbos extra de patch para los recursos permitidos (Deployments, ConfigMaps, etc.).
-- Se genera con `deploy/k8s/generate-kubeconfig.sh` ejecutado en matrix → `scp` a leia.
+- Apunta a `https://192.168.1.200:6443` — la API K8s corre en LeIA (control-plane).
+- Es un kubeconfig con verbos de lectura + patch para Deployments, ConfigMaps y recursos permitidos.
 - → Ver [[../08-Infraestructura/05-RBAC-Kubeconfig]] para el detalle.
 
 ## 📍 Por qué esta distribución
 
 > [!tip] Razones operativas
 > - **GPU en LeIA, no en matrix** → matrix necesita CPU libre para tenants; la inferencia LLM va donde está la VRAM.
+> - **Control-plane en LeIA** → cuando matrix cae como worker, la API K8s (en LeIA) sigue operativa. Lobster puede consultar el estado del clúster y actuar (pin_deployment_to_node, etc.) incluso durante la caída del worker.
 > - **Observabilidad fuera del nodo monitorizado** → si matrix cae, Sauron sigue viendo y alertando.
 > - **Edge separado** → certificados Let's Encrypt y DNS no se mezclan con K3s.
 > - **SQLite local en LeIA, no en K8s** → el agente debe sobrevivir a una caída del clúster que está monitorizando.

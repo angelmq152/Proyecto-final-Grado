@@ -113,13 +113,17 @@ class K8sClient:
     async def get_pod(self, namespace: str, name: str) -> object:
         return await self._get(Pod, name, namespace=namespace)
 
-    async def delete_pod(self, namespace: str, name: str) -> None:
+    async def delete_pod(self, namespace: str, name: str, force: bool = False) -> None:
         """
         Delete a pod. If the pod has a ReplicaSet/Deployment owner,
         K8s recreates it automatically.
+        Pass force=True (grace_period=0) to evict pods stuck Terminating on an
+        unreachable node — this removes them from the API immediately without
+        waiting for the kubelet to confirm termination.
         """
         try:
-            await self._get_client().delete(Pod, name, namespace=namespace)
+            kwargs: dict[str, object] = {"grace_period": 0} if force else {}
+            await self._get_client().delete(Pod, name, namespace=namespace, **kwargs)
         except Exception as exc:
             message = f"Failed to delete Kubernetes pod {namespace}/{name}: {exc}"
             raise K8sClientError(message) from exc
@@ -279,6 +283,14 @@ class K8sClient:
             return str(cond_status) == "True"
         return False
 
+    async def patch_node_unschedulable(self, name: str, unschedulable: bool) -> None:
+        patch = {"spec": {"unschedulable": unschedulable or None}}
+        try:
+            await self._get_client().patch(Node, name, patch)
+        except Exception as exc:
+            message = f"Failed to patch node {name} unschedulable={unschedulable}: {exc}"
+            raise K8sClientError(message) from exc
+
     async def get_node_taints(self, name: str) -> list[dict[str, str]]:
         try:
             node = await self._get(Node, name)
@@ -341,8 +353,8 @@ class K8sClient:
 
         Returns ``{"path": ..., "node": ..., "pv_name": ...}``. Each value can
         be None when the PVC is unbound or the PV does not advertise that
-        information. Supports both `spec.local.path` (used by
-        local-path-provisioner) and `spec.hostPath.path` (manual hostPath PVs).
+        information. Supports local-path-provisioner, hostPath PVs, and
+        smb.csi.k8s.io PVs (path derived from the SMB share root + PV name).
         """
 
         empty: dict[str, str | None] = {"path": None, "node": None, "pv_name": None}
@@ -357,6 +369,12 @@ class K8sClient:
         host_path = _get_attr(pv_spec, "hostPath", "host_path")
         raw_path = _get_attr(local, "path") or _get_attr(host_path, "path")
         path = raw_path if isinstance(raw_path, str) else None
+        # SMB CSI PVs have no local path — derive it from the Samba share root
+        if path is None:
+            csi = _get_attr(pv_spec, "csi")
+            driver = _get_attr(csi, "driver")
+            if isinstance(driver, str) and driver == "smb.csi.k8s.io":
+                path = f"/srv/k3s-pvs/{volume_name}"
         return {"path": path, "node": _pv_node(pv_spec), "pv_name": volume_name}
 
     async def list_ingresses(self, namespace: str) -> list[dict[str, Any]]:

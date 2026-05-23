@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from datetime import UTC, datetime, timedelta
 from typing import Annotated, Literal, Protocol, cast
 from uuid import UUID
@@ -73,6 +74,7 @@ class NodeHealth(BaseModel):
 class NodeAliveness(BaseModel):
     node: Literal["matrix", "fallback"]
     alive: bool
+    api_available: bool
     detail: str
 
 
@@ -108,6 +110,7 @@ class DeploymentSummary(BaseModel):
     replicas: int | None
     ready_replicas: int | None
     available_replicas: int | None
+    node_selector: dict[str, str] | None = None
 
 
 class IngressSummary(BaseModel):
@@ -221,20 +224,58 @@ async def is_node_alive(
     ctx: RunContext[AgentDeps],
     node: Literal["matrix", "fallback"],
 ) -> NodeAliveness | ToolError:
-    """Check whether a K3s node is Ready according to Kubernetes itself.
+    """Check whether a K3s worker node is alive.
 
-    Returns alive=True when the node's Ready condition is "True". A node that
-    is powered off, unreachable, or whose kubelet is down will be reported as
-    alive=False — even if Prometheus metrics still look fine for stale data.
+    First tries the K8s API (node Ready condition). If the API is unreachable
+    (e.g. control-plane down), falls back to a direct TCP probe on port 22.
+    The api_available field lets the agent distinguish two situations:
+    - alive=True, api_available=False: node is up (SSH reachable) but K8s API
+      is gone — workloads cannot be moved until the API recovers.
+    - alive=False, api_available=False: node is truly unreachable.
     """
     try:
         ready = await ctx.deps.k8s.get_node_ready(node)
-    except K8sClientError as exc:
-        return ToolError(source="k8s", message=str(exc))
-    detail = (
-        "Node Ready=True" if ready else "Node not Ready (powered off, unreachable, or kubelet down)"
-    )
-    return NodeAliveness(node=node, alive=ready, detail=detail)
+        detail = (
+            "Node Ready=True" if ready else "Node not Ready (powered off, unreachable, or kubelet down)"
+        )
+        return NodeAliveness(node=node, alive=ready, api_available=True, detail=detail)
+    except K8sClientError:
+        reachable = await _probe_node_tcp(node)
+        if reachable:
+            return NodeAliveness(
+                node=node,
+                alive=True,
+                api_available=False,
+                detail=(
+                    f"Node '{node}' is reachable via direct TCP probe but K8s API is unavailable. "
+                    "The control-plane (matrix) is likely down — workloads cannot be "
+                    "rescheduled via K8s until the API recovers."
+                ),
+            )
+        return NodeAliveness(
+            node=node,
+            alive=False,
+            api_available=False,
+            detail=(
+                f"Node '{node}' is unreachable: K8s API down and direct TCP probe failed. "
+                "Node appears to be powered off or disconnected."
+            ),
+        )
+
+
+async def _probe_node_tcp(host: str, port: int = 22, timeout: float = 3.0) -> bool:
+    try:
+        _, writer = await asyncio.wait_for(
+            asyncio.open_connection(host, port), timeout=timeout
+        )
+        writer.close()
+        try:
+            await writer.wait_closed()
+        except OSError:
+            pass
+        return True
+    except (OSError, asyncio.TimeoutError):
+        return False
 
 
 async def query_loki(
@@ -635,6 +676,7 @@ def _deployment_summary(deployment: DeploymentInfo) -> DeploymentSummary:
         replicas=deployment.replicas,
         ready_replicas=deployment.ready_replicas,
         available_replicas=deployment.available_replicas,
+        node_selector=deployment.node_selector,
     )
 
 

@@ -205,8 +205,16 @@ async def delete_pod_persistent(
     ctx: RunContext[AgentDeps],
     namespace: str,
     pod_name: str,
+    force: bool = False,
 ) -> str:
-    """Delete a pod permanently. Always requires approval."""
+    """Delete a pod permanently.
+
+    Set force=True to force-delete (grace_period=0) a pod stuck in Terminating
+    on an unreachable node. This immediately removes it from the API server,
+    freeing ResourceQuota so new pods can be scheduled. AUTONOMOUS when
+    force=True — the pod is already dead on a down node and quota must be freed
+    urgently. NORMAL (requires approval) otherwise.
+    """
     if ctx.deps.mutation_context is None:
         return "delete_pod_persistent unavailable: mutation context is not configured"
     try:
@@ -219,6 +227,7 @@ async def delete_pod_persistent(
     warning = (
         " Warning: pod has an owner and will be recreated by Kubernetes." if owner_refs else ""
     )
+    severity = ActionSeverity.AUTONOMOUS if force else ActionSeverity.NORMAL
     payload: dict[str, Any] = {
         "namespace": namespace,
         "pod_name": pod_name,
@@ -226,15 +235,17 @@ async def delete_pod_persistent(
         "container_statuses": _container_statuses(pod),
         "namespace_labels": {namespace: _labels(namespace_obj)},
         "owner_references": owner_refs,
+        "force": force,
         "warning": warning.strip() or None,
     }
 
     async def executor() -> dict[str, Any]:
-        await ctx.deps.k8s.delete_pod(namespace, pod_name)
+        await ctx.deps.k8s.delete_pod(namespace, pod_name, force=force)
         return {
             "deleted": True,
             "namespace": namespace,
             "pod_name": pod_name,
+            "force": force,
             "will_recreate": bool(owner_refs),
         }
 
@@ -245,7 +256,7 @@ async def delete_pod_persistent(
         payload=payload,
         manifest=None,
         executor=executor,
-        severity_override=ActionSeverity.NORMAL,
+        severity_override=severity,
     )
     return f"{result.message}{warning}"
 

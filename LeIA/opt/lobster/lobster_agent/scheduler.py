@@ -4,6 +4,7 @@ import re
 import time
 from contextlib import suppress
 from datetime import datetime
+from typing import Any
 
 import structlog
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -68,8 +69,13 @@ _HEALTH_LOOP_READ_PROMPT_TEMPLATE = (
     "marca con '[ANOMALÍA]' y empieza la descripción con 'matrix caído'. Esta "
     "comprobación es prioritaria sobre la (B): si matrix no está vivo, no "
     "tiene sentido hablar de presión.\n"
+    "(E) Fallback caído con workloads pinados: llama a is_node_alive('fallback'). "
+    "Si devuelve alive=false, llama a list_deployments (sin namespace) y comprueba "
+    "si alguno tiene nodeSelector kubernetes.io/hostname=fallback. Si lo hay, "
+    "marca con '[ANOMALÍA]' y empieza la descripción con 'fallback caído con "
+    "workloads pinados'. Esos pods están en Pending indefinido y hay que desclavar.\n"
     "REGLAS de marcado: tu respuesta debe empezar EXACTAMENTE con '[ANOMALÍA]' "
-    "si detectaste cualquiera de A/B/C/D, o con '[OK]' si todo está sano. "
+    "si detectaste cualquiera de A/B/C/D/E, o con '[OK]' si todo está sano. "
     "Describe los recursos por su nombre real obtenido con las herramientas "
     "(nunca uses ejemplos ficticios). Sé breve. "
     "No uses '[ANOMALÍA]' para describir lo que NO está pasando: si dudas, es '[OK]'."
@@ -100,16 +106,27 @@ _HEALTH_LOOP_ANALYZE_PROMPT = (
     "Si la anomalía es 'matrix caído': (1) confirma con "
     "is_node_alive('matrix') que sigue alive=false. (2) confirma con "
     "is_node_alive('fallback') que fallback sí está vivo — si fallback también "
-    "está caído, notifica y NO actúes. (3) list_deployments en namespaces de "
-    "tenant para identificar candidatos. (4) pin_deployment_to_node(namespace, "
-    "deployment, node='fallback') para cada candidato. Requiere aprobación "
-    "por el riesgo de mover datos a un nodo distinto.\n"
+    "está caído, notifica y NO actúes. (3) list_pods SIN namespace — para cada "
+    "pod en estado Terminating cuyo nodo sea matrix, llama a "
+    "delete_pod_persistent(namespace, pod_name, force=True): esto libera la "
+    "ResourceQuota bloqueada por pods que no pueden terminar en un nodo caído. "
+    "Autónomo, sin aprobación. (4) list_deployments SIN namespace para obtener "
+    "TODOS los deployments de tenant — son candidatos sin excepción, aunque ya "
+    "tengan nodeSelector=matrix, porque ese nodo está caído y sus pods no pueden "
+    "programarse. (5) pin_deployment_to_node(namespace, deployment, node='fallback') "
+    "para cada candidato. Requiere aprobación por el riesgo de mover datos.\n"
     "Si la anomalía es 'workloads pinados a fallback con matrix recuperado': "
     "(1) confirma con query_prometheus_range que matrix ha estado por debajo "
     "del umbral UNPIN durante los últimos 15 minutos. (2) list_deployments y "
     "filtra los que tienen nodeSelector kubernetes.io/hostname=fallback. (3) "
     "unpin_deployment_from_node(namespace, deployment) para cada uno. "
-    "Autónomo, sin aprobación."
+    "Autónomo, sin aprobación.\n"
+    "Si la anomalía es 'fallback caído con workloads pinados': (1) confirma con "
+    "is_node_alive('fallback') que sigue alive=false. (2) list_deployments (sin "
+    "namespace) y filtra los que tienen nodeSelector kubernetes.io/hostname=fallback. "
+    "(3) unpin_deployment_from_node(namespace, deployment) para cada uno. "
+    "Autónomo, sin aprobación — el nodo donde están pinados está caído, hay que "
+    "devolver los workloads a matrix urgentemente."
 )
 
 _GLOBAL_STATE_PROMPT = (
@@ -411,13 +428,19 @@ class SchedulerRunner:
             )
 
     async def _run_analyze_phase(self, read_output: str) -> None:
+        # Espera breve para que K8s marque los pods como Terminating (setea
+        # deletionTimestamp) antes de intentar el force-delete. Cuando un nodo
+        # cae, el pod-eviction-controller tarda ~30-40 s en actuar.
+        if "matrix caído" in (read_output or "")[:500].lower():
+            await asyncio.sleep(45)
+        await _pre_analyze_force_delete_stuck_pods(self._agent, read_output)
         prompt = (
             f"{_HEALTH_LOOP_ANALYZE_PROMPT}\n\nResumen de la lectura previa:\n{read_output[:2000]}"
         )
         try:
             result = await asyncio.wait_for(
                 self._agent.run(CaseUse.HEALTH_LOOP_ANALYZE, prompt),
-                timeout=900,
+                timeout=1800,
             )
             lobster_last_cycle_timestamp.labels(case_use=CaseUse.HEALTH_LOOP_ANALYZE.value).set(
                 time.time()
@@ -488,7 +511,96 @@ _ANOMALY_PREFIX_RE = re.compile(r"\s*\[\s*anomal", re.IGNORECASE)
 
 
 def _has_anomaly(text: str) -> bool:
-    return bool(_ANOMALY_PREFIX_RE.match(text or ""))
+    # Busca en los primeros 300 chars por si el LLM añade un preámbulo corto.
+    # No se busca en el cuerpo completo para evitar falsos positivos del tipo
+    # "no hay CrashLoopBackOff".
+    return bool(_ANOMALY_PREFIX_RE.search((text or "")[:300]))
+
+
+async def _pre_analyze_force_delete_stuck_pods(agent: Any, read_output: str) -> None:
+    """Force-delete pods stuck Terminating on unreachable nodes before the LLM analyze.
+
+    This is an autonomous pre-step: Terminating pods on a NotReady node are
+    already dead and blocking ResourceQuota. Removing them from the API server
+    is unambiguous and must happen before the LLM can pin deployments effectively.
+    """
+    if "matrix caído" not in (read_output or "")[:500].lower():
+        return
+    deps = getattr(agent, "deps", None)
+    if deps is None:
+        return
+    k8s = getattr(deps, "k8s", None)
+    if k8s is None:
+        return
+    try:
+        namespaces = await k8s.list_namespaces_with_label("saasphere.io/tenant=true")
+    except Exception as exc:
+        log.warning("lobster.scheduler.pre_analyze.list_ns_failed", error=str(exc))
+        return
+    deleted = 0
+    for ns_obj in namespaces:
+        ns_name = _obj_str_attr(ns_obj, "metadata", "name")
+        if not ns_name:
+            continue
+        try:
+            pods = await k8s.list_pods(ns_name)
+        except Exception:
+            continue
+        for pod in pods:
+            if not _pod_is_on_node(pod, "matrix"):
+                continue
+            pod_name = _obj_str_attr(pod, "metadata", "name")
+            pod_ns = _obj_str_attr(pod, "metadata", "namespace") or ns_name
+            if not pod_name:
+                continue
+            try:
+                await k8s.delete_pod(pod_ns, pod_name, force=True)
+                log.info(
+                    "lobster.scheduler.pre_analyze.force_deleted_pod",
+                    namespace=pod_ns,
+                    pod=pod_name,
+                )
+                deleted += 1
+            except Exception as exc:
+                log.warning(
+                    "lobster.scheduler.pre_analyze.force_delete_failed",
+                    namespace=pod_ns,
+                    pod=pod_name,
+                    error=str(exc),
+                )
+    if deleted:
+        log.info("lobster.scheduler.pre_analyze.force_deleted_total", count=deleted)
+
+
+def _obj_str_attr(obj: Any, *attrs: str) -> str | None:
+    """Walk a chain of attributes/keys and return a str value, or None."""
+    current: Any = obj
+    for attr in attrs:
+        if current is None:
+            return None
+        if isinstance(current, dict):
+            current = current.get(attr)
+        else:
+            current = getattr(current, attr, None)
+    return current if isinstance(current, str) else None
+
+
+def _pod_is_on_node(pod: Any, node_name: str) -> bool:
+    """Return True when the pod is scheduled on node_name.
+
+    Used to identify pods that need force-eviction when the node is down —
+    checking nodeName directly is more reliable than checking deletionTimestamp,
+    which may not be set yet when the pre-analyze runs.
+    """
+    if isinstance(pod, dict):
+        spec = pod.get("spec") or {}
+        actual = spec.get("nodeName") if isinstance(spec, dict) else None
+    else:
+        spec = getattr(pod, "spec", None)
+        if spec is None:
+            return False
+        actual = getattr(spec, "nodeName", None) or getattr(spec, "node_name", None)
+    return actual == node_name
 
 
 def _save_obsidian_note(base_path: str, case_use: CaseUse, content: str) -> None:

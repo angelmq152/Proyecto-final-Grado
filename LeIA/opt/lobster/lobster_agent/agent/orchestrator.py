@@ -28,6 +28,7 @@ from lobster_agent.agent.tools.dummy import echo, get_time, simple_calc
 from lobster_agent.agent.tools.meta import request_new_tool
 from lobster_agent.agent.tools.mutations import (
     apply_manifest,
+    cordon_node,
     delete_pod_persistent,
     delete_tenant,
     deploy_tenant,
@@ -37,6 +38,7 @@ from lobster_agent.agent.tools.mutations import (
     restart_pod,
     resume_tenant,
     scale_deployment,
+    uncordon_node,
     unpin_deployment_from_node,
     update_configmap,
     verify_tenant_health,
@@ -161,11 +163,13 @@ class LobsterAgent:
         started_at = datetime.now(UTC)
         model_name = select_model(case_use)
         think = use_think_mode(case_use)
-        system_prompt = build_system_prompt(case_use, context)
-
         if self.deps is not None and self.deps.agent_state_repo_factory is not None:
             state_repo = await self.deps.agent_state_repo_factory()
             state = await state_repo.get()
+            if self.deps.mutation_context is not None:
+                self.deps.mutation_context.set_dry_run(state.mode == AgentMode.DRY_RUN)
+            context = {**(context or {}), "agent_mode": state.mode.value}
+
             if state.mode == AgentMode.PAUSED:
                 decision = Decision(
                     timestamp=started_at,
@@ -189,6 +193,8 @@ class LobsterAgent:
                     data=decision.conclusion,
                     error=None,
                 )
+
+        system_prompt = build_system_prompt(case_use, context)
 
         if self.deps is not None:
             self.deps.current_case_use = case_use.value
@@ -351,6 +357,8 @@ def _build_tools_for_case(
         verify_tenant_health,
         pin_deployment_to_node,
         unpin_deployment_from_node,
+        cordon_node,
+        uncordon_node,
     ]
     all_tools = (
         meta_tools

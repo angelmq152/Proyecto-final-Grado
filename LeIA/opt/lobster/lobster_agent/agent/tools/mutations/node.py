@@ -12,11 +12,10 @@ from lobster_agent.persistence.models import ActionStatus
 
 log = structlog.get_logger()
 
-# Real SaaSphere K3s cluster has two nodes: matrix (control-plane + primary
-# workload host) and fallback (cold standby, tainted so K8s won't schedule
-# there by default). The other observed hosts (leia, sauron, heimdall) are
-# external monitoring targets, not K3s nodes.
-KnownNode = Literal["matrix", "fallback"]
+# SaaSphere K3s cluster nodes: leia (control-plane), matrix and fallback
+# (workers). The fallback node may carry a NoSchedule taint as a cold standby.
+# Sauron and heimdall are external monitoring targets, not K3s nodes.
+KnownNode = Literal["leia", "matrix", "fallback"]
 
 
 class MutationContextLike(Protocol):
@@ -52,7 +51,7 @@ async def pin_deployment_to_node(
     matrix is under resource pressure or unreachable and you want to move a
     tenant workload to fallback.
 
-    Severity: NORMAL — requires human approval.
+    Severity: AUTONOMOUS — executes without human approval.
     Safe to call: policy.validate() rejects system namespaces before touching K8s.
     """
     if ctx.deps.mutation_context is None:
@@ -110,7 +109,6 @@ async def pin_deployment_to_node(
         payload=payload,
         manifest=None,
         executor=executor,
-        severity_override=ActionSeverity.NORMAL,
     )
     if result.status == ActionStatus.ABORTED_DRY_RUN:
         extra = ""
@@ -195,6 +193,83 @@ async def unpin_deployment_from_node(
         if tolerations_changed:
             extra = " and clearing saasphere tolerations"
         return f"{result.message}; would remove nodeSelector {current_selector}{extra}."
+    return result.message
+
+
+async def cordon_node(
+    ctx: RunContext[AgentDeps],
+    node: KnownNode,
+) -> str:
+    """
+    Mark a node as unschedulable (cordon) so the Kubernetes scheduler stops
+    placing new pods on it. Existing pods keep running; use restart_deployment
+    to move them to other nodes after cordoning.
+
+    Typical workflow to evacuate a node:
+      1. cordon_node(node)
+      2. restart_deployment for each tenant deployment on that node
+      3. uncordon_node(node) once the node recovers
+
+    Severity: NORMAL — requires human approval because it affects scheduling
+    cluster-wide.
+    """
+    if ctx.deps.mutation_context is None:
+        return "cordon_node unavailable: mutation context is not configured"
+
+    try:
+        await ctx.deps.k8s.get_node_ready(node)
+    except Exception as exc:
+        return f"cordon_node failed before action creation: {exc}"
+
+    async def executor() -> dict[str, Any]:
+        await ctx.deps.k8s.patch_node_unschedulable(node, True)
+        return {"cordoned": True, "node": node}
+
+    result = await cast(MutationContextLike, ctx.deps.mutation_context).execute(
+        action_type="cordon_node",
+        namespace="kube-system",
+        target=node,
+        payload={"node": node},
+        manifest=None,
+        executor=executor,
+        severity_override=ActionSeverity.NORMAL,
+    )
+    if result.status == ActionStatus.ABORTED_DRY_RUN:
+        return f"{result.message}; would mark node {node} as unschedulable."
+    return result.message
+
+
+async def uncordon_node(
+    ctx: RunContext[AgentDeps],
+    node: KnownNode,
+) -> str:
+    """
+    Remove the unschedulable mark from a node (uncordon), allowing the
+    Kubernetes scheduler to place new pods on it again.
+
+    Use this after a node has recovered and you want to restore normal
+    scheduling behaviour.
+
+    Severity: AUTONOMOUS — re-enables scheduling, safe without human approval.
+    """
+    if ctx.deps.mutation_context is None:
+        return "uncordon_node unavailable: mutation context is not configured"
+
+    async def executor() -> dict[str, Any]:
+        await ctx.deps.k8s.patch_node_unschedulable(node, False)
+        return {"uncordoned": True, "node": node}
+
+    result = await cast(MutationContextLike, ctx.deps.mutation_context).execute(
+        action_type="uncordon_node",
+        namespace="kube-system",
+        target=node,
+        payload={"node": node},
+        manifest=None,
+        executor=executor,
+        severity_override=ActionSeverity.AUTONOMOUS,
+    )
+    if result.status == ActionStatus.ABORTED_DRY_RUN:
+        return f"{result.message}; would mark node {node} as schedulable."
     return result.message
 
 

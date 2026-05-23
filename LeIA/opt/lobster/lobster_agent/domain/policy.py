@@ -39,8 +39,10 @@ ACTION_SEVERITIES = {
     "verify_tenant_health": ActionSeverity.AUTONOMOUS,
     "scale_tenant": ActionSeverity.NORMAL,
     "annotate_resource": ActionSeverity.AUTONOMOUS,
-    "pin_deployment_to_node": ActionSeverity.NORMAL,
+    "pin_deployment_to_node": ActionSeverity.AUTONOMOUS,
     "unpin_deployment_from_node": ActionSeverity.AUTONOMOUS,
+    "cordon_node": ActionSeverity.NORMAL,
+    "uncordon_node": ActionSeverity.AUTONOMOUS,
 }
 
 
@@ -172,7 +174,7 @@ def _manifest_violations(manifest: dict[str, Any], context: dict[str, Any]) -> l
         violations.append("forbidden_kind")
     if _contains_key_value(manifest, "privileged", True):
         violations.append("privileged")
-    if _contains_key(manifest, "hostPath"):
+    if _has_forbidden_host_path(manifest):
         violations.append("host_path")
     if _contains_key_value(manifest, "hostNetwork", True):
         violations.append("host_network")
@@ -200,6 +202,24 @@ def _contains_key(value: object, key: str) -> bool:
         return key in value or any(_contains_key(child, key) for child in value.values())
     if isinstance(value, list):
         return any(_contains_key(child, key) for child in value)
+    return False
+
+
+_ALLOWED_HOST_PATHS = ("/srv/lobster/static/",)
+
+
+def _has_forbidden_host_path(value: object) -> bool:
+    if isinstance(value, dict):
+        if "hostPath" in value:
+            hp = value["hostPath"]
+            if isinstance(hp, dict):
+                path = hp.get("path", "")
+                if isinstance(path, str) and any(path.startswith(p) for p in _ALLOWED_HOST_PATHS):
+                    return False
+            return True
+        return any(_has_forbidden_host_path(child) for child in value.values())
+    if isinstance(value, list):
+        return any(_has_forbidden_host_path(child) for child in value)
     return False
 
 

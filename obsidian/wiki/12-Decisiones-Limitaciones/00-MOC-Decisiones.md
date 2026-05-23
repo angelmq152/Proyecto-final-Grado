@@ -16,3 +16,4 @@ tags: [moc, decisiones, limitaciones, tfg, academico]
 - [[04-Riesgos]] — qué podría fallar.
 - [[05-Futuro-roadmap]] — qué viene después.
 - [[06-Mapa-al-TFG]] — cómo cada decisión se mapea a las fases 1-9 del TFG.
+- [[07-Quota-Saasphere-Rolling-Update]] — ResourceQuota de saasphere ajustada al límite de 1 pod bloquea rolling updates; workaround y opciones de solución.

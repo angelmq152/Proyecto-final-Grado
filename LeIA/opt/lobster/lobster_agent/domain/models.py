@@ -81,6 +81,7 @@ class DeploymentInfo(BaseModel):
     replicas: int | None = None
     available_replicas: int | None = None
     ready_replicas: int | None = None
+    node_selector: dict[str, str] | None = None
 
 
 class IngressInfo(BaseModel):

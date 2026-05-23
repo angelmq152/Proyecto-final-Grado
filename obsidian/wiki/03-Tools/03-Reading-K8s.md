@@ -27,7 +27,34 @@ tags: [tools, reading, k8s, kubernetes, lightkube]
 ## 🛠️ `list_deployments(namespace=None)`
 
 > [!example] Salida
-> `DeploymentSummary(name, namespace, replicas, ready_replicas, available_replicas)`. Se usa típicamente para detectar `replicas != ready_replicas`.
+> `DeploymentSummary(name, namespace, replicas, ready_replicas, available_replicas, node_selector)`. Se usa típicamente para detectar `replicas != ready_replicas` y para comprobar si hay deployments pinados a un nodo concreto.
+
+> [!tip] Campo `node_selector` (añadido 2026-05-23)
+> Desde la sesión del 23 de mayo de 2026, `DeploymentSummary` incluye el campo `node_selector: dict[str, str] | None`. Cuando un deployment tiene `nodeSelector` en K8s (por ejemplo `{"kubernetes.io/hostname": "fallback"}` tras un pin de failover), este valor llega al LLM como parte de la respuesta. Antes de este cambio, el agente no podía detectar los pins y por tanto no podía ejecutar el ciclo de recuperación autónoma.
+>
+> La cadena de propagación es:
+> `K8s API → lightkube Deployment → _deployment_info_from_deployment() → DeploymentInfo.node_selector → _deployment_summary() → DeploymentSummary.node_selector → LLM`
+
+> [!warning] Leccion de implementacion: `_get_attr` no encadena
+> Durante la implementación se descubrió un bug sutil: para acceder a `deployment.spec.template.spec.nodeSelector` son necesarias tres llamadas independientes a `_get_attr`, no una sola con múltiples argumentos. `_get_attr(spec, "template", "spec")` busca `spec.template` **o** `spec.spec` (alternativas), no encadena. La forma correcta:
+> ```python
+> template = _get_attr(spec, "template")
+> pod_spec = _get_attr(template, "spec")
+> raw_selector = _get_attr(pod_spec, "nodeSelector", "node_selector")
+> ```
+> Ver [[../10-Operacion/09-Postmortem-Failover-Kubeconfig-2026-05-23]] (Bug 2) para el análisis completo.
+
+> [!example] Comando para la captura
+> ```bash
+> # Ver node_selector de todos los deployments de tenant
+> kubectl --kubeconfig=/etc/lobster/kubeconfig get deployments \
+>   -A -l saasphere.io/tenant=true \
+>   -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name,NODE:.spec.template.spec.nodeSelector"
+>
+> # Ver el modelo DeploymentSummary en el codigo
+> grep -n -A 10 "class DeploymentSummary" \
+>   /opt/openclaw/lobster_agent/agent/tools/reading.py
+> ```
 
 ## 🛠️ `list_ingresses(namespace=None)`
 
@@ -58,6 +85,14 @@ class PodSummary(BaseModel):
 class PodDetail(PodSummary):
     ready: bool
     node: str | None
+
+class DeploymentSummary(BaseModel):
+    name: str
+    namespace: str
+    replicas: int | None
+    ready_replicas: int | None
+    available_replicas: int | None
+    node_selector: dict[str, str] | None = None  # añadido 2026-05-23
 ```
 
 > [!info] Compacto a propósito

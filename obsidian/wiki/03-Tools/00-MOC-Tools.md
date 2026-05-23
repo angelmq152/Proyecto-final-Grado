@@ -24,7 +24,7 @@ tags: [moc, tools, lobster, pydantic-ai]
 
 - [[06-Mutations-K8s]] — `restart_pod`, `restart_deployment`, `scale_deployment`, `delete_pod_persistent`, `apply_manifest`, `update_configmap`.
 - [[07-Mutations-Tenants]] — `deploy_tenant`, `delete_tenant`, `pause_tenant`, `resume_tenant`, `verify_tenant_health`.
-- [[08-Mutations-Nodes]] — `pin_deployment_to_node`, `unpin_deployment_from_node`.
+- [[08-Mutations-Nodes]] — `pin_deployment_to_node`, `unpin_deployment_from_node`, `cordon_node`, `uncordon_node`. También documenta `is_node_alive` con probe TCP y campo `api_available`.
 
 ## Notas — Meta y debug
 
@@ -48,7 +48,9 @@ tags: [moc, tools, lobster, pydantic-ai]
 | `pause_tenant` | NORMAL | ✅ |
 | `resume_tenant` | AUTONOMOUS | ❌ |
 | `verify_tenant_health` | AUTONOMOUS | ❌ |
-| `pin_deployment_to_node` | NORMAL | ✅ |
+| `pin_deployment_to_node` | AUTONOMOUS | ❌ (desde 2026-05-23) |
 | `unpin_deployment_from_node` | AUTONOMOUS | ❌ |
+| `cordon_node` | NORMAL | ✅ |
+| `uncordon_node` | AUTONOMOUS | ❌ |
 
 → Ver [[../02-Agente/05-Mutation-context|MutationContext]] para entender cómo se aplica esto.

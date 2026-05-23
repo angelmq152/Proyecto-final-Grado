@@ -16,6 +16,7 @@ tags: [moc, tenants, saasphere, multitenant]
 - [[04-Plantillas-Jinja2]] — dentro de `lobster_agent/manifests/`.
 - [[05-Ciclo-de-vida]] — deploy → pause → resume → delete.
 - [[06-Politica-namespaces]] — qué NO puede tocar el agente.
+- [[07-Postmortem-Static-Site-SMB]] — saga completa de la migración a `StorageClass` con `subDir` plantillado (2026-05-22/23).
 
 ## Tabla resumen de tiers
 

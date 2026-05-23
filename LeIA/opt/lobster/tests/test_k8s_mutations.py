@@ -60,8 +60,8 @@ class FakeK8sClient:
     async def scale_deployment(self, namespace: str, name: str, replicas: int) -> None:
         self.calls.append(("scale_deployment", (namespace, name, replicas)))
 
-    async def delete_pod(self, namespace: str, name: str) -> None:
-        self.calls.append(("delete_pod", (namespace, name)))
+    async def delete_pod(self, namespace: str, name: str, force: bool = False) -> None:
+        self.calls.append(("delete_pod", (namespace, name, force)))
 
     async def apply_manifest(self, yaml_text: str) -> dict[str, str]:
         self.calls.append(("apply_manifest", (yaml_text,)))
@@ -208,7 +208,7 @@ async def test_delete_pod_persistent_without_owner_executes() -> None:
 
     assert result == "completed"
     assert mutations.calls[0]["severity"] == ActionSeverity.NORMAL
-    assert ("delete_pod", ("tenant-x", "standalone")) in k8s.calls
+    assert ("delete_pod", ("tenant-x", "standalone", False)) in k8s.calls
 
 
 async def test_delete_pod_persistent_with_owner_warns_and_executes() -> None:
@@ -219,7 +219,7 @@ async def test_delete_pod_persistent_with_owner_warns_and_executes() -> None:
 
     assert "will be recreated" in result
     assert mutations.calls[0]["severity"] == ActionSeverity.NORMAL
-    assert ("delete_pod", ("tenant-x", "owned")) in k8s.calls
+    assert ("delete_pod", ("tenant-x", "owned", False)) in k8s.calls
 
 
 async def test_apply_manifest_valid_deployment_executes() -> None:

@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 from typing import Any, cast
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from pydantic_ai import RunContext
@@ -37,6 +38,7 @@ async def test_is_node_alive_returns_true_when_node_ready() -> None:
     assert isinstance(result, NodeAliveness)
     assert result.node == "matrix"
     assert result.alive is True
+    assert result.api_available is True
     assert k8s.calls == ["matrix"]
 
 
@@ -48,18 +50,46 @@ async def test_is_node_alive_returns_false_when_node_not_ready() -> None:
 
     assert isinstance(result, NodeAliveness)
     assert result.alive is False
+    assert result.api_available is True
     assert "not Ready" in result.detail
 
 
-async def test_is_node_alive_returns_tool_error_on_k8s_failure() -> None:
+async def test_is_node_alive_api_down_but_node_reachable() -> None:
+    """K8s API unreachable but TCP probe succeeds → alive=True, api_available=False."""
     k8s = FakeK8sClient(raise_error=True)
     ctx = _make_ctx(k8s)
 
-    result = await is_node_alive(ctx, "fallback")
+    with patch(
+        "lobster_agent.agent.tools.reading._probe_node_tcp",
+        new_callable=AsyncMock,
+        return_value=True,
+    ):
+        result = await is_node_alive(ctx, "fallback")
 
-    assert isinstance(result, ToolError)
-    assert result.source == "k8s"
-    assert "not found" in result.message
+    assert isinstance(result, NodeAliveness)
+    assert result.node == "fallback"
+    assert result.alive is True
+    assert result.api_available is False
+    assert "TCP" in result.detail or "reachable" in result.detail
+
+
+async def test_is_node_alive_api_down_and_node_unreachable() -> None:
+    """K8s API unreachable and TCP probe also fails → alive=False, api_available=False."""
+    k8s = FakeK8sClient(raise_error=True)
+    ctx = _make_ctx(k8s)
+
+    with patch(
+        "lobster_agent.agent.tools.reading._probe_node_tcp",
+        new_callable=AsyncMock,
+        return_value=False,
+    ):
+        result = await is_node_alive(ctx, "matrix")
+
+    assert isinstance(result, NodeAliveness)
+    assert result.node == "matrix"
+    assert result.alive is False
+    assert result.api_available is False
+    assert "unreachable" in result.detail
 
 
 # ---------------------------------------------------------------------------
